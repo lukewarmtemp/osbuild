@@ -447,6 +447,12 @@
       "build": "name:build",
       "stages": [
         {
+          "type": "org.osbuild.ostree.init",
+          "options": {
+            "path": "/repo"
+          }
+        },
+        {
           "type": "org.osbuild.ostree.remotes",
           "options": {
             "repo": "/ostree/repo",
