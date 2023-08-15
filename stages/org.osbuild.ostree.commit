@@ -115,8 +115,8 @@ def main(inputs, output_dir, options, meta):
 if __name__ == '__main__':
     args = api.arguments()
 
-    r = main(args["inputs"],
-             args["tree"],
+    r = main("",
+             "",
              args["options"],
              args["meta"])
 
