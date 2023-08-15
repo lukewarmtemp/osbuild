@@ -454,12 +454,6 @@
         },
         {
           "type": "org.osbuild.ostree.commit",
-          "inputs": {
-            "tree": {
-              "type": "org.osbuild.tree",
-              "origin": "org.osbuild.pipeline"
-            }
-          },
           "options": {
             "ref": "fedora/x86_64/osbuild",
             "os_version": "38"
