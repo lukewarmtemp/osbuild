@@ -105,6 +105,8 @@ def main(inputs, output_dir, options, meta):
 
         with open(os.path.join(output_dir, "compose.json"), "r", encoding="utf8") as f:
             compose = json.load(f)
+        
+        print(compose)
 
         api.metadata({"compose": compose})
 
