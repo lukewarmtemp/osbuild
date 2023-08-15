@@ -457,10 +457,7 @@
           "inputs": {
             "tree": {
               "type": "org.osbuild.tree",
-              "origin": "org.osbuild.pipeline",
-              "references": [
-                "name:ostree-tree"
-              ]
+              "origin": "org.osbuild.pipeline"
             }
           },
           "options": {
