@@ -454,6 +454,15 @@
         },
         {
           "type": "org.osbuild.ostree.commit",
+          "inputs": {
+            "tree": {
+              "type": "org.osbuild.tree",
+              "origin": "org.osbuild.pipeline",
+              "references": [
+                "name:ostree-tree"
+              ]
+            }
+          },
           "options": {
             "ref": "fedora/x86_64/osbuild",
             "os_version": "38"
@@ -515,7 +524,7 @@
           "options": {
             "osname": "fedora",
             "ref": "fedora/x86_64/osbuild",
-            "remote": "osbuild",
+            "remote": "fedora-coreos",
             "mounts": [
               "/boot",
               "/boot/efi"
