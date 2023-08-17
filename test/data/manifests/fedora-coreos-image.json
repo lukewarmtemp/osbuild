@@ -29,8 +29,7 @@
                 "options":
                 {
                   "remote": {
-                    "url": "https://ostree.fedoraproject.org",
-                    "contenturl": "mirrorlist=https://ostree.fedoraproject.org/mirrorlist"
+
                   }
                 }
               }]   
