@@ -17,7 +17,7 @@
         {
           "type": "org.osbuild.ostree.pull",
           "options": {
-            "repo": "/sysroot/ostree/repo",
+            "repo": "/run/osbuild/tree/ostree/repo",
             "remote": "osbuild",
             "test": "test"
           }
