@@ -95,7 +95,7 @@ def main(tree, inputs, options):
     #                input=None,
     #                check=True)
 
-    subprocess.run(["ls run"],
+    subprocess.run(["sudo ls run"],
                    encoding="utf8",
                    stdout=sys.stderr,
                    input=None,
