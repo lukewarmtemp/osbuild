@@ -77,7 +77,13 @@ def main(tree, inputs, options):
     repo = options["repo"]
     # remote = options.get("remote")
     # target = os.path.join(tree, repo.lstrip("/"))
-    subprocess.run(["mkdir -p /ostree/repo"],
+    subprocess.run(["mkdir /ostree"],
+                   encoding="utf8",
+                   stdout=sys.stderr,
+                   input=None,
+                   check=True)
+    
+    subprocess.run(["mkdir /ostree/repo"],
                    encoding="utf8",
                    stdout=sys.stderr,
                    input=None,
