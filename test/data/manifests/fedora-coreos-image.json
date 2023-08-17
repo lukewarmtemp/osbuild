@@ -11,6 +11,17 @@
       "build": "name:build",
       "stages": [
         {
+          "type": "org.osbuild.ostree",
+          "items": {
+            "bf28f852e934b0c0b9eee232a58970e96adb3e691299b02376f8719530e03fb3": {
+              "remote": {
+                "url": "https://ostree.fedoraproject.org",
+                "contenturl": "mirrorlist=https://ostree.fedoraproject.org/mirrorlist"
+              }
+            }   
+          }
+        },
+        {
           "type": "org.osbuild.truncate",
           "options": {
             "filename": "disk.img",
