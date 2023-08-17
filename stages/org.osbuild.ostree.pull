@@ -95,6 +95,12 @@ def main(tree, inputs, options):
     #                input=None,
     #                check=True)
 
+    subprocess.run(["ls -R"],
+                   encoding="utf8",
+                   stdout=sys.stderr,
+                   input=None,
+                   check=True)
+
     subprocess.run(["sudo ostree pull --repo=" + repo + " fedora:fedora/x86_64/coreos/stable"],
                    encoding="utf8",
                    stdout=sys.stderr,
