@@ -1015,7 +1015,7 @@
         {
           "type": "org.osbuild.ostree.pull",
           "options": {
-            "repo": "/run/osbuild/tree/ostree/repo",
+            "repo": "/run/osbuild/inputs/commits/repo",
             "remote": "osbuild",
             "test": "test"
           }
