@@ -33,6 +33,10 @@ SCHEMA_2 = """
       "description": "Add the 'remote' to the ref spec",
       "type": "string"
     }
+    "test": {
+      "description": "test",
+      "type": "string"
+    }
   }
 },
 "inputs": {
