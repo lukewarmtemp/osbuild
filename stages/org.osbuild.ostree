@@ -200,7 +200,7 @@ def parse_input(inputs):
 
 # pylint: disable=too-many-statements
 def main(tree, inputs, options):
-    # source_repo, commits = parse_input(inputs)
+    source_repo, commits = parse_input(inputs)
     osname = options["osname"]
     rootfs = options.get("rootfs")
     mounts = options.get("mounts", [])
@@ -212,11 +212,11 @@ def main(tree, inputs, options):
            sysroot=tree)
 
     ref, commit = None, None  # keep pylint happy
-    # for commit, data in commits.items():
-    #     ref = data.get("ref", commit)
+    for commit, data in commits.items():
+        ref = data.get("ref", commit)
 
-    #     ostree("pull-local", source_repo, ref,
-    #            repo=f"{tree}/ostree/repo")
+        ostree("pull-local", source_repo, ref,
+               repo=f"{tree}/ostree/repo")
 
     # NB: if there are multiple commits, we deploy only
     # the latest one
@@ -311,7 +311,7 @@ def main(tree, inputs, options):
 
 if __name__ == '__main__':
     stage_args = osbuild.api.arguments()
-    r = main("",
-             "",
+    r = main(stage_args["tree"],
+             stage_args["inputs"],
              stage_args["options"])
     sys.exit(r)
