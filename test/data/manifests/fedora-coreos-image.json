@@ -31,7 +31,7 @@
         {
           "type": "org.osbuild.ostree.config",
           "options": {
-            "repo": "/ostree/repo",
+            "repo": "/sysroot/ostree/repo",
             "config": {
               "sysroot": {
                 "readonly": true,

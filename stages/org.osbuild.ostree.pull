@@ -77,23 +77,23 @@ def main(tree, inputs, options):
     repo = options["repo"]
     # remote = options.get("remote")
     # target = os.path.join(tree, repo.lstrip("/"))
-    subprocess.run(["mkdir /ostree"],
-                   encoding="utf8",
-                   stdout=sys.stderr,
-                   input=None,
-                   check=True)
+    # subprocess.run(["mkdir /ostree"],
+    #                encoding="utf8",
+    #                stdout=sys.stderr,
+    #                input=None,
+    #                check=True)
     
-    subprocess.run(["mkdir /ostree/repo"],
-                   encoding="utf8",
-                   stdout=sys.stderr,
-                   input=None,
-                   check=True)
+    # subprocess.run(["mkdir /ostree/repo"],
+    #                encoding="utf8",
+    #                stdout=sys.stderr,
+    #                input=None,
+    #                check=True)
     
-    subprocess.run(["ostree --repo=/ostree/repo init"],
-                   encoding="utf8",
-                   stdout=sys.stderr,
-                   input=None,
-                   check=True)
+    # subprocess.run(["ostree --repo=/ostree/repo init"],
+    #                encoding="utf8",
+    #                stdout=sys.stderr,
+    #                input=None,
+    #                check=True)
 
     subprocess.run(["ostree pull --repo " + repo + " fedora:fedora/x86_64/coreos/stable"],
                    encoding="utf8",
