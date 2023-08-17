@@ -226,6 +226,15 @@
       ]
     },
     {
+      "name": "container-deploy",
+      "build": "name:build",
+      "stages": [
+        {
+          "type": "org.osbuild.ostree.container-deploy"
+        }
+      ]
+    },
+    {
       "name": "qcow2",
       "build": "name:build",
       "stages": [
