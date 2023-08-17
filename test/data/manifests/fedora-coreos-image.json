@@ -232,6 +232,7 @@
         "type": "org.osbuild.ostree",
         "options": {
           "osname": "fedora-coreos",
+          "ref": "fedora/x86_64/osbuild",
           "remotes": [{
           "name": "coreos-remote",
           "url": "https://ostree.fedoraproject.org",
