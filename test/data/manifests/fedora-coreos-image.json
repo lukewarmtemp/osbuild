@@ -7,20 +7,202 @@
       "source-epoch": 1659397331
     },
     {
-      "name": "image",
+      "name": "ostree-commit",
       "build": "name:build",
       "stages": [
         {
-          "type": "org.osbuild.ostree",
-          "items": {
-            "bf28f852e934b0c0b9eee232a58970e96adb3e691299b02376f8719530e03fb3": {
-              "remote": {
-                "url": "https://ostree.fedoraproject.org",
-                "contenturl": "mirrorlist=https://ostree.fedoraproject.org/mirrorlist"
-              }
-            }   
+          "type": "org.osbuild.ostree.init",
+          "options": {
+            "path": "/repo"
           }
         },
+        {
+          "type": "org.osbuild.ostree.commit",
+          "inputs": {
+            "tree": {
+              "type": "org.osbuild.ostree",
+              "items": {
+                "bf28f852e934b0c0b9eee232a58970e96adb3e691299b02376f8719530e03fb3": {
+                  "remote": {
+                    "url": "https://ostree.fedoraproject.org",
+                    "contenturl": "mirrorlist=https://ostree.fedoraproject.org/mirrorlist"
+                  }
+                }   
+              },
+              "origin": "org.osbuild.pipeline",
+              "references": [
+                "name:ostree-tree"
+              ]
+            }
+          },
+          "options": {
+            "ref": "fedora/x86_64/osbuild",
+            "os_version": "38"
+          }
+        }
+      ]
+    },
+    {
+      "name": "image-tree",
+      "build": "name:build",
+      "source-epoch": 1659397331,
+      "stages": [
+        {
+          "type": "org.osbuild.ostree.init-fs"
+        },
+        {
+          "type": "org.osbuild.ostree.pull",
+          "options": {
+            "repo": "/ostree/repo",
+            "remote": "osbuild"
+          },
+          "inputs": {
+            "commits": {
+              "type": "org.osbuild.ostree",
+              "origin": "org.osbuild.pipeline",
+              "references": {
+                "name:ostree-commit": {
+                  "ref": "fedora/x86_64/osbuild"
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "org.osbuild.ostree.os-init",
+          "options": {
+            "osname": "fedora"
+          }
+        },
+        {
+          "type": "org.osbuild.ostree.config",
+          "options": {
+            "repo": "/ostree/repo",
+            "config": {
+              "sysroot": {
+                "readonly": true,
+                "bootloader": "none"
+              }
+            }
+          }
+        },
+        {
+          "type": "org.osbuild.mkdir",
+          "options": {
+            "paths": [
+              {
+                "path": "/boot/efi",
+                "mode": 448
+              }
+            ]
+          }
+        },
+        {
+          "type": "org.osbuild.ostree.deploy",
+          "options": {
+            "osname": "fedora",
+            "ref": "fedora/x86_64/osbuild",
+            "remote": "osbuild",
+            "mounts": [
+              "/boot",
+              "/boot/efi"
+            ],
+            "rootfs": {
+              "label": "root"
+            },
+            "kernel_opts": [
+              "rw",
+              "console=tty0",
+              "console=ttyS0",
+              "systemd.log_target=console",
+              "systemd.journald.forward_to_console=1",
+              "luks.uuid=aedd1eef-f24e-425e-a9f3-bb5a1c996a95"
+            ]
+          }
+        },
+        {
+          "type": "org.osbuild.ostree.fillvar",
+          "options": {
+            "deployment": {
+              "osname": "fedora",
+              "ref": "fedora/x86_64/osbuild"
+            }
+          }
+        },
+        {
+          "type": "org.osbuild.fstab",
+          "mounts": [
+            {
+              "type": "org.osbuild.ostree.deployment",
+              "name": "ostree.deployment",
+              "options": {
+                "deployment": {
+                  "osname": "fedora",
+                  "ref": "fedora/x86_64/osbuild"
+                }
+              }
+            }
+          ],
+          "options": {
+            "filesystems": [
+              {
+                "label": "boot",
+                "vfs_type": "ext4",
+                "path": "/boot",
+                "freq": 1,
+                "passno": 1
+              },
+              {
+                "label": "root",
+                "vfs_type": "xfs",
+                "path": "/",
+                "freq": 1,
+                "passno": 1
+              },
+              {
+                "label": "ESP",
+                "vfs_type": "vfat",
+                "path": "/boot/efi",
+                "options": "umask=0077,shortname=winnt",
+                "freq": 0,
+                "passno": 2
+              }
+            ]
+          }
+        },
+        {
+          "type": "org.osbuild.ostree.selinux",
+          "options": {
+            "deployment": {
+              "osname": "fedora",
+              "ref": "fedora/x86_64/osbuild"
+            }
+          }
+        },
+        {
+          "type": "org.osbuild.grub2",
+          "options": {
+            "rootfs": {
+              "label": "root"
+            },
+            "bootfs": {
+              "label": "boot"
+            },
+            "uefi": {
+              "vendor": "fedora",
+              "install": true
+            },
+            "legacy": "i386-pc",
+            "write_defaults": false,
+            "greenboot": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "image",
+      "build": "name:build",
+      "stages": [
         {
           "type": "org.osbuild.truncate",
           "options": {
@@ -191,6 +373,86 @@
           }
         },
         {
+          "type": "org.osbuild.copy",
+          "inputs": {
+            "tree": {
+              "type": "org.osbuild.tree",
+              "origin": "org.osbuild.pipeline",
+              "references": [
+                "name:image-tree"
+              ]
+            }
+          },
+          "options": {
+            "paths": [
+              {
+                "from": "input://tree/",
+                "to": "mount://root/"
+              }
+            ]
+          },
+          "devices": {
+            "efi": {
+              "type": "org.osbuild.loopback",
+              "options": {
+                "filename": "disk.img",
+                "start": 4096,
+                "size": 204800
+              }
+            },
+            "boot": {
+              "type": "org.osbuild.loopback",
+              "options": {
+                "filename": "disk.img",
+                "start": 208896,
+                "size": 204800
+              }
+            },
+            "luks": {
+              "type": "org.osbuild.loopback",
+              "options": {
+                "filename": "disk.img",
+                "start": 413696,
+                "size": 20555776
+              }
+            },
+            "lvm": {
+              "type": "org.osbuild.luks2",
+              "parent": "luks",
+              "options": {
+                "passphrase": "osbuild"
+              }
+            },
+            "root": {
+              "type": "org.osbuild.lvm2.lv",
+              "parent": "lvm",
+              "options": {
+                "volume": "root"
+              }
+            }
+          },
+          "mounts": [
+            {
+              "name": "root",
+              "type": "org.osbuild.xfs",
+              "source": "root",
+              "target": "/"
+            },
+            {
+              "name": "boot",
+              "type": "org.osbuild.ext4",
+              "source": "boot",
+              "target": "/boot"
+            },
+            {
+              "name": "efi",
+              "type": "org.osbuild.fat",
+              "source": "efi",
+              "target": "/boot/efi"
+            }
+          ]
+        },
+        {
           "type": "org.osbuild.grub2.inst",
           "options": {
             "platform": "i386-pc",
@@ -233,15 +495,6 @@
             "creation_host": "osbuild",
             "description": "Built with osbuild"
           }
-        }
-      ]
-    },
-    {
-      "name": "container-deploy",
-      "build": "name:build",
-      "stages": [
-        {
-          "type": "org.osbuild.ostree.container-deploy"
         }
       ]
     },
