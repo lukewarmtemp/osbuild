@@ -32,10 +32,6 @@ SCHEMA_2 = """
     "remote": {
       "description": "Add the 'remote' to the ref spec",
       "type": "string"
-    },
-    "test": {
-      "description": "test",
-      "type": "string"
     }
   }
 },
@@ -73,48 +69,31 @@ def parse_input(inputs):
 
 # pylint: disable=too-many-statements
 def main(tree, inputs, options):
-    # source_repo, commits = parse_input(inputs)
+    source_repo, commits = parse_input(inputs)
     repo = options["repo"]
-    # remote = options.get("remote")
-    # target = os.path.join(tree, repo.lstrip("/"))
-    # subprocess.run(["mkdir /ostree"],
-    #                encoding="utf8",
-    #                stdout=sys.stderr,
-    #                input=None,
-    #                check=True)
-    
-    # subprocess.run(["mkdir /ostree/repo"],
-    #                encoding="utf8",
-    #                stdout=sys.stderr,
-    #                input=None,
-    #                check=True)
-    
-    # subprocess.run(["ostree --repo=/ostree/repo init"],
-    #                encoding="utf8",
-    #                stdout=sys.stderr,
-    #                input=None,
-    #                check=True)
+    remote = options.get("remote")
+    target = os.path.join(tree, repo.lstrip("/"))
 
-    subprocess.run(["ostree pull --repo " + repo + " fedora:fedora/x86_64/coreos/stable"],
-                   encoding="utf8",
-                   stdout=sys.stderr,
-                   input=None,
-                   check=True)
-    # for commit, data in commits.items():
-    #     ref = data.get("ref", commit)
+    for commit, data in commits.items():
+        ref = data.get("ref", commit)
 
-    #     extra_args = []
-    #     if remote:
-    #         extra_args.append(f'--remote={remote}')
+        extra_args = []
+        if remote:
+            extra_args.append(f'--remote={remote}')
 
-    #     ostree("pull-local", source_repo, ref,
-    #            *extra_args,
-    #            repo=target)
+        print(source_repo)
+        print(ref)
+        print(*extra_args)
+        print(target)
+
+        ostree("pull-local", source_repo, ref,
+               *extra_args,
+               repo=target)
 
 
 if __name__ == '__main__':
     stage_args = osbuild.api.arguments()
-    r = main("",
-             "",
+    r = main(stage_args["tree"],
+             stage_args["inputs"],
              stage_args["options"])
     sys.exit(r)
