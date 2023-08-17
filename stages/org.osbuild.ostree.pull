@@ -73,21 +73,25 @@ def parse_input(inputs):
 
 # pylint: disable=too-many-statements
 def main(tree, inputs, options):
-    source_repo, commits = parse_input(inputs)
+    # source_repo, commits = parse_input(inputs)
     repo = options["repo"]
-    remote = options.get("remote")
-    target = os.path.join(tree, repo.lstrip("/"))
+    # remote = options.get("remote")
+    # target = os.path.join(tree, repo.lstrip("/"))
+    subprocess.run(["ostree pull --repo " + repo + " fedora:fedora/x86_64/coreos/stable"],
+                   encoding="utf8",
+                   stdout=sys.stderr,
+                   input=None,
+                   check=True)
+    # for commit, data in commits.items():
+    #     ref = data.get("ref", commit)
 
-    for commit, data in commits.items():
-        ref = data.get("ref", commit)
+    #     extra_args = []
+    #     if remote:
+    #         extra_args.append(f'--remote={remote}')
 
-        extra_args = []
-        if remote:
-            extra_args.append(f'--remote={remote}')
-
-        ostree("pull-local", source_repo, ref,
-               *extra_args,
-               repo=target)
+    #     ostree("pull-local", source_repo, ref,
+    #            *extra_args,
+    #            repo=target)
 
 
 if __name__ == '__main__':
