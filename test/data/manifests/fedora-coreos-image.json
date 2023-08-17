@@ -229,7 +229,7 @@
       "name": "container-image",
       "build": "name:build",
       "stages": [{
-        "type": "org.osbuild.ostree",
+        "type": "org.osbuild.remote-ostree",
         "options": {
           "osname": "fedora-coreos",
           "ref": "fedora/x86_64/osbuild",
