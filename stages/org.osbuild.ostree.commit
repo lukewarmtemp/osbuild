@@ -61,7 +61,7 @@ SCHEMA_2 = """
 
 
 def main(inputs, output_dir, options, meta):
-    # tree = inputs["tree"]["path"]
+    tree = inputs["tree"]["path"]
 
     ref = options["ref"]
     os_version = options.get("os_version", None)
@@ -71,14 +71,14 @@ def main(inputs, output_dir, options, meta):
     # so for now, we copy the whole tree and let it have its
     # way
     with tempfile.TemporaryDirectory(dir=output_dir) as root:
-        # subprocess.run(["cp", "--reflink=auto", "-a",
-        #                 f"{tree}/.", root],
-        #                check=True)
+        subprocess.run(["cp", "--reflink=auto", "-a",
+                        f"{tree}/.", root],
+                       check=True)
 
         repo = os.path.join(output_dir, "repo")
 
-        # treefile = ostree.Treefile()
-        # treefile["ref"] = ref
+        treefile = ostree.Treefile()
+        treefile["ref"] = ref
 
         argv = ["rpm-ostree", "compose", "commit"]
         argv += [f"--repo={repo}"]
@@ -91,23 +91,20 @@ def main(inputs, output_dir, options, meta):
                 f"--add-metadata-string=version={os_version}",
             ]
 
-        # temporarily add base commit
         argv += [
-            f"--add-metadata-string=rpmostree.inputhash={meta['bf28f852e934b0c0b9eee232a58970e96adb3e691299b02376f8719530e03fb3']}",
+            f"--add-metadata-string=rpmostree.inputhash={meta['id']}",
             f"--write-composejson-to={output_dir}/compose.json"
         ]
 
-        # with treefile.as_tmp_file() as path:
-        #     argv += [path, root]
+        with treefile.as_tmp_file() as path:
+            argv += [path, root]
 
-        subprocess.run(argv,
-                        stdout=sys.stderr,
-                        check=True)
+            subprocess.run(argv,
+                           stdout=sys.stderr,
+                           check=True)
 
         with open(os.path.join(output_dir, "compose.json"), "r", encoding="utf8") as f:
             compose = json.load(f)
-        
-        print(compose)
 
         api.metadata({"compose": compose})
 
@@ -115,8 +112,8 @@ def main(inputs, output_dir, options, meta):
 if __name__ == '__main__':
     args = api.arguments()
 
-    r = main("",
-             "",
+    r = main(args["inputs"],
+             args["tree"],
              args["options"],
              args["meta"])
 
