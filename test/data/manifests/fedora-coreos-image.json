@@ -23,6 +23,12 @@
           "inputs": {
             "commits": {
               "type": "org.osbuild.ostree",
+              "origin": "org.osbuild.pipeline",
+              "references": {
+                "name:ostree-commit": {
+                  "ref": "fedora/x86_64/osbuild"
+                }
+              },
               "items": {
                 "bf28f852e934b0c0b9eee232a58970e96adb3e691299b02376f8719530e03fb3": {
                   "remote": {
