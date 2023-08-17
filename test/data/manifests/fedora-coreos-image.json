@@ -229,7 +229,13 @@
       "name": "container-image",
       "build": "name:build",
       "stages": [{
-          "type": "org.osbuild.ostree"
+        "type": "org.osbuild.ostree",
+        "osname": "fedora-coreos",
+        "remotes": [{
+         "name": "coreos-remote",
+         "url": "https://ostree.fedoraproject.org",
+         "contenturl": "mirrorlist=https://ostree.fedoraproject.org/mirrorlist"
+        }]
         }
       ]
     },
