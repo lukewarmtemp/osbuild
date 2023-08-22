@@ -27,7 +27,7 @@ sources:
   org.osbuild.skopeo:
     items:
       "patternProperties": {
-        "bf28f852e934b0c0b9eee232a58970e96adb3e691299b02376f8719530e03fb3": {
+        "sha256:942d15f31c250babe882a5c1ad18051cd77172493dd6a81ba15cc1e6058214fc": {
           "properties": {
             "image": {
               "properties": {
