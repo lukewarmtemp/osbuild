@@ -54,7 +54,7 @@ pipelines:
             type: org.osbuild.ostree
             origin: org.osbuild.source
             references:
-              "b2f85b1cbd6fba21f20715efad4e3c603f4e73def3da07df180e04c617592c72":
+              "bf28f852e934b0c0b9eee232a58970e96adb3e691299b02376f8719530e03fb3":
                 ref: quay.io/fedora/fedora-coreos:testing-devel
       - type: org.osbuild.ostree.os-init
         options:
