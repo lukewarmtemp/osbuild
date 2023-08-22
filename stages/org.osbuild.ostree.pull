@@ -85,7 +85,7 @@ def main(tree, inputs, options):
 
         extra_args = []
         if remote:
-            extra_args.append(f'--imgref=ostree-unverified-registry:quay.io/luyang/my-custom-fcos3')
+            extra_args.append(f'--imgref=ostree-unverified-registry:quay.io/fedora/fedora-coreos:testing-devel')
             extra_args.append(f'--stateroot=fedora-coreos')
 
         subprocess.run("ls")
