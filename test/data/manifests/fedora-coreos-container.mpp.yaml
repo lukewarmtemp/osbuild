@@ -26,15 +26,14 @@ mpp-define-image:
 sources:
   org.osbuild.skopeo:
     items:
-      image: {
-        bf28f852e934b0c0b9eee232a58970e96adb3e691299b02376f8719530e03fb3: {
+      bf28f852e934b0c0b9eee232a58970e96adb3e691299b02376f8719530e03fb3:
+        image: {
           name: "quay.io/coreos/fedora-coreos:stable",
           properties: {
             name: "fedora-coreos:stable",
             digest: "bf28f852e934b0c0b9eee232a58970e96adb3e691299b02376f8719530e03fb3",
             tls-verify: "false"
           }
-        }
       }
 pipelines:
   - mpp-import-pipelines:
