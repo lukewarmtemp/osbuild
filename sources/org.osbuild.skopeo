@@ -92,6 +92,7 @@ class SkopeoSource(sources.SourceService):
             os.makedirs(archive_dir)
             os.chmod(archive_dir, 0o755)
 
+            # source = f"docker://{imagename}@{digest}"
             source = f"docker://{imagename}@{digest}"
 
             # We use the dir format because it is the most powerful in terms of feature support and is the closest to a
@@ -101,7 +102,11 @@ class SkopeoSource(sources.SourceService):
             extra_args = []
             if not tls_verify:
                 extra_args.append("--src-tls-verify=false")
-
+            
+            print(["skopeo", "copy"] + extra_args + [source, destination],
+                encoding="utf-8",
+                check=True)
+            
             subprocess.run(["skopeo", "copy"] + extra_args + [source, destination],
                            encoding="utf-8",
                            check=True)
