@@ -45,7 +45,7 @@ pipelines:
     source-epoch: 1659397331
     stages:
       - type: org.osbuild.ostree.init-fs
-      - type: org.osbuild.ostree.pull
+      - type: org.osbuild.ostree.container-deploy
         options:
           repo: /ostree/repo
           remote: fedora
