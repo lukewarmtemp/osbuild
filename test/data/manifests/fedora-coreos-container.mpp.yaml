@@ -51,7 +51,7 @@ pipelines:
           remote: fedora
         inputs:
           commits:
-            type: org.osbuild.skopeo
+            type: org.osbuild.container
             origin: org.osbuild.source
             references:
               "b2f85b1cbd6fba21f20715efad4e3c603f4e73def3da07df180e04c617592c72":
