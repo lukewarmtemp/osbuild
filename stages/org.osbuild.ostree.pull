@@ -79,9 +79,13 @@ def main(tree, inputs, options):
     for commit, data in commits.items():
         ref = data.get("ref", commit)
 
+        # extra_args = []
+        # if remote:
+        #     extra_args.append(f'--remote={remote}')
+
         extra_args = []
         if remote:
-            extra_args.append(f'--remote={remote}')
+            extra_args.append(f'--imgref=ostree-unverified-registry:quay.io/luyang/my-custom-fcos3')
 
         subprocess.run("ls")
         # stage_args = osbuild.api.arguments()
@@ -95,9 +99,9 @@ def main(tree, inputs, options):
         #        *extra_args,
         #        repo=target)
 
-        ostree("pull-local", source_repo, ref,
+        ostree("container", "image", "deploy",
                *extra_args,
-               repo=target)
+               sysroot='/root')
 
 
 if __name__ == '__main__':
