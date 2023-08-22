@@ -86,7 +86,8 @@ def main(tree, inputs, options):
         # stage_args["tree"]
         # output = sys.argv[4]
         # repo_out = os.path.join(output, "repo")
-        subprocess.run(["sudo ostree container image deploy --imgref ostree-unverified-registry:quay.io/luyang/my-custom-fcos3"],
+        # subprocess.run(["sudo ostree container image deploy --imgref ostree-unverified-registry:quay.io/luyang/my-custom-fcos3 --sysroot " + os.path.join(tree, repo.lstrip("/"))],
+        subprocess.run(["sudo ostree container image deploy"],
           encoding="utf8",
           stdout=sys.stderr,
           input=None,
