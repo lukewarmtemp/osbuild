@@ -61,7 +61,8 @@ def ostree(*args, _input=None, **kwargs):
                    check=True)
 
 def skopeo(*args, _input=None, **kwargs):
-    args = list(args)
+    args = list(args) + [f'--{k}={v}' for k, v in kwargs.items()]
+    print(args)
     subprocess.run(['skopeo'] + args,
                    encoding="utf8",
                    stdout=sys.stderr,
