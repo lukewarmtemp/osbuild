@@ -80,10 +80,15 @@ def main(tree, inputs, options):
         extra_args = []
         if remote:
             extra_args.append(f'--remote={remote}')
+        subprocess.run(["ostree container image quay.io/fedora/fedora-coreos --imgref 8bbdde9426167777c24e7c705df71064925e2e463ce85d4ca7f255653261d5b1 --sysroot /root"],
+          encoding="utf8",
+          stdout=sys.stderr,
+          input=None,
+          check=True)
 
-        ostree("pull-local", source_repo, ref,
-               *extra_args,
-               repo=target)
+        # ostree("pull-local", source_repo, ref,
+        #        *extra_args,
+        #        repo=target)
 
 
 if __name__ == '__main__':
