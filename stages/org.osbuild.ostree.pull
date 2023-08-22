@@ -82,6 +82,7 @@ def main(tree, inputs, options):
             extra_args.append(f'--remote={remote}')
 
         subprocess.run("ls")
+        subprocess.run("ls /home/luyang/dev/test-builds/tmp/buildroot-tmp-pi1jdtta/")
         stage_args = osbuild.api.arguments()
         stage_args["tree"]
         output = sys.argv[4]
