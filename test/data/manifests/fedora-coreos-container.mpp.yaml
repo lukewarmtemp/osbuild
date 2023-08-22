@@ -60,7 +60,7 @@ pipelines:
             origin: org.osbuild.source
             references:
               "bf28f852e934b0c0b9eee232a58970e96adb3e691299b02376f8719530e03fb3":
-                ref: quay.io/fedora/fedora-coreos:testing-devel
+                ref: fedora/x86_64/coreos/stable
       - type: org.osbuild.ostree.os-init
         options:
           osname: fedora-coreos
