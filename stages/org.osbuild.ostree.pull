@@ -101,7 +101,7 @@ def main(tree, inputs, options):
 
         ostree("container", "image", "deploy",
                *extra_args,
-               sysroot='/root')
+               sysroot=f"{tree}")
 
 
 if __name__ == '__main__':
