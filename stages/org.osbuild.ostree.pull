@@ -82,7 +82,7 @@ def main(tree, inputs, options):
             extra_args.append(f'--remote={remote}')
 
         subprocess.run("ls")
-        subprocess.run(["sudo ostree container image deploy --imgref ostree-unverified-registry:quay.io/luyang/my-custom-fcos3 --sysroot root"],
+        subprocess.run(["sudo ostree container image deploy --imgref ostree-unverified-registry:quay.io/luyang/my-custom-fcos3 --sysroot ./root"],
           encoding="utf8",
           stdout=sys.stderr,
           input=None,
