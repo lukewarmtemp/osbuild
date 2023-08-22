@@ -107,7 +107,7 @@ def main(tree, inputs, options):
         #        *extra_args,
         #        repo=target)
 
-        skopeo("copy", "docker://quay.io/fedora/fedora-coreos:testing-devel", "containers-storage:localhost/fcos",
+        skopeo(["copy", "docker://quay.io/fedora/fedora-coreos:testing-devel", "containers-storage:localhost/fcos"],
                [],
                [])
 
