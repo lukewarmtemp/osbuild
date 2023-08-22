@@ -27,10 +27,11 @@ sources:
   org.osbuild.skopeo:
     items:
       sha256:8bbdde9426167777c24e7c705df71064925e2e463ce85d4ca7f255653261d5b1:
-        image:
+        image: {
           name: "quay.io/coreos/fedora-coreos:stable",
           digest: "sha256:b2f85b1cbd6fba21f20715efad4e3c603f4e73def3da07df180e04c617592c72",
           tls-verify: false
+      }
 pipelines:
   - mpp-import-pipelines:
       path: fedora-vars.ipp.yaml
