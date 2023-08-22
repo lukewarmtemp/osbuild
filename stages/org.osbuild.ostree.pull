@@ -60,6 +60,16 @@ def ostree(*args, _input=None, **kwargs):
                    input=_input,
                    check=True)
 
+def skopeo(*args, _input=None, **kwargs):
+    print(args)
+    args = list(args) + [f'--{k}={v}' for k, v in kwargs.items()]
+    print(args)
+    print("skopeo " + " ".join(args), file=sys.stderr)
+    subprocess.run(['skopeo'] + args,
+                   encoding="utf8",
+                   stdout=sys.stderr,
+                   input=_input,
+                   check=True)
 
 def parse_input(inputs):
     commits = inputs["commits"]
@@ -85,7 +95,7 @@ def main(tree, inputs, options):
 
         extra_args = []
         if remote:
-            extra_args.append(f'--imgref=ostree-unverified-registry:quay.io/fedora/fedora-coreos:testing-devel')
+            extra_args.append(f'--imgref=containers-storage:localhost/fcos')
             extra_args.append(f'--stateroot=fedora-coreos')
 
         subprocess.run("ls")
@@ -100,9 +110,14 @@ def main(tree, inputs, options):
         #        *extra_args,
         #        repo=target)
 
+        skopeo("copy", "docker://quay.io/fedora/fedora-coreos:testing-devel", "containers-storage:localhost/fcos",
+               [],
+               [])
+
         ostree("container", "image", "deploy",
                *extra_args,
                sysroot=f"{tree}")
+               
 
 
 if __name__ == '__main__':
