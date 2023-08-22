@@ -45,13 +45,13 @@ pipelines:
     source-epoch: 1659397331
     stages:
       - type: org.osbuild.ostree.init-fs
-      - type: org.osbuild.ostree.container-deploy
+      - type: org.osbuild.ostree.pull
         options:
           repo: /ostree/repo
           remote: fedora
         inputs:
           commits:
-            type: org.osbuild.container
+            type: org.osbuild.ostree
             origin: org.osbuild.source
             references:
               "b2f85b1cbd6fba21f20715efad4e3c603f4e73def3da07df180e04c617592c72":
