@@ -31,8 +31,8 @@ sources:
           "properties": {
             "image": {
               "properties": {
-                "name": "fedora-coreos:stable"
-                "digest": "bf28f852e934b0c0b9eee232a58970e96adb3e691299b02376f8719530e03fb3"
+                "name": "fedora-coreos:stable",
+                "digest": "bf28f852e934b0c0b9eee232a58970e96adb3e691299b02376f8719530e03fb3",
                 "tls-verify": "false"
               }
             }
