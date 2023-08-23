@@ -109,9 +109,17 @@ def main(tree, inputs, options):
         #        *extra_args,
         #        repo=target)
 
-        skopeo("copy", "docker://quay.io/fedora/fedora-coreos:testing-devel", "containers-storage:localhost/fcos",
-               [],
-               [])
+        # skopeo("copy", "docker://quay.io/fedora/fedora-coreos:testing-devel", "containers-storage:localhost/fcos",
+        #        [],
+        #        [])
+        
+        args = ['copy', 'docker://quay.io/fedora/fedora-coreos:testing-devel', 'containers-storage:localhost/fcos']
+        
+        subprocess.run(['skopeo'] + args,
+                   encoding="utf8",
+                   stdout=sys.stderr,
+                   input=None,
+                   check=True)
 
         ostree("container", "image", "deploy",
                *extra_args,
