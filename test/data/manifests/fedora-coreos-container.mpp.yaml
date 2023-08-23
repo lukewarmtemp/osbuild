@@ -113,7 +113,7 @@ pipelines:
         options:
           deployment:
             osname: fedora-coreos
-            ref: containers-storage:[overlay@/run/osbuild/tree/usr/share/containers/storage+/run/containers/storage]localhost/fcos
+            ref: ostree-unverified-image:containers-storage:[overlay@/run/osbuild/tree/usr/share/containers/storage+/run/containers/storage]localhost/fcos
       - type: org.osbuild.grub2
         options:
           rootfs:
