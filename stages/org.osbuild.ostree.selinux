@@ -37,21 +37,30 @@ SCHEMA = """
         "default": 0
       }
     }
+  },
+  "container": {
+    "description": "Bool to indicate if the deployment is a container",
+    "type": "boolean"
   }
 }
 """
-
 
 def main(tree, options):
     dep = options["deployment"]
     osname = dep["osname"]
     ref = dep["ref"]
     serial = dep.get("serial", 0)
+    is_container = options.get("container")
 
     # this created a state root at `osname`
     stateroot = f"{tree}/ostree/deploy/{osname}"
 
-    root = ostree.deployment_path(tree, osname, ref, serial)
+    if (not is_container):
+      root = ostree.deployment_path(tree, osname, ref, serial)
+    else:
+      root = ostree.deployment_path_container(tree, osname, ref, serial) 
+    
+    print(root)
 
     # deploying a tree creates new files that need to be properly
     # labeled for SELinux. In theory, ostree will take care of
