@@ -69,10 +69,10 @@ pipelines:
       #         images:
       #           - source: quay.io/fedora/fedora-coreos
       #             tag: stable
-        options:
-          destination:
-            type: containers-storage
-            storage-path: /usr/share/containers/storage
+        # options:
+        #   destination:
+        #     type: containers-storage
+        #     storage-path: /usr/share/containers/storage
       - type: org.osbuild.ostree.pull
         options:
           repo: /ostree/repo
