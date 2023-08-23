@@ -50,6 +50,16 @@ pipelines:
     source-epoch: 1659397331
     stages:
       - type: org.osbuild.ostree.init-fs
+      - type: org.osbuild.ostree.os-init
+        options:
+          osname: fedora-coreos
+      - type: org.osbuild.ostree.config
+        options:
+          repo: /ostree/repo
+          config:
+            sysroot:
+              readonly: false
+              bootloader: none
       - type: org.osbuild.skopeo
         inputs:
           images:
@@ -75,16 +85,6 @@ pipelines:
             references:
               "bf28f852e934b0c0b9eee232a58970e96adb3e691299b02376f8719530e03fb3":
                 ref: fedora/x86_64/coreos/stable
-      - type: org.osbuild.ostree.os-init
-        options:
-          osname: fedora-coreos
-      - type: org.osbuild.ostree.config
-        options:
-          repo: /ostree/repo
-          config:
-            sysroot:
-              readonly: false
-              bootloader: none
       - type: org.osbuild.mkdir
         options:
           paths:
