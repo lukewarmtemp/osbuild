@@ -38,7 +38,6 @@ SCHEMA_2 = """
 "inputs": {
   "type": "object",
   "additionalProperties": false,
-  "required": ["commits"],
   "properties": {
     "commits": {
       "type": "object",
@@ -94,7 +93,7 @@ def main(tree, inputs, options):
 
         extra_args = []
         if remote:
-            extra_args.append(f'--imgref=containers-storage:localhost/fcos')
+            extra_args.append(f'--imgref=containers-storage:quay.io/fedora/fedora-coreos:testing-devel')
             extra_args.append(f'--stateroot=fedora-coreos')
 
         subprocess.run("ls")
@@ -113,8 +112,12 @@ def main(tree, inputs, options):
         #        [],
         #        [])
         
-        args = ['copy', 'docker://quay.io/fedora/fedora-coreos:testing-devel', 'containers-storage:localhost/fcos']
+        # args = ['copy', 'docker://quay.io/fedora/fedora-coreos:testing-devel', 'containers-storage:localhost/fcos']
         
+        # podman run -v // mounting volumes
+        # skopeo copy into an OCI archive
+
+
         # subprocess.run(['skopeo'] + args,
         #            encoding="utf8",
         #            stdout=sys.stderr,
