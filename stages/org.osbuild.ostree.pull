@@ -134,9 +134,13 @@ def main(tree, inputs, options):
         #                 encoding="utf-8",
         #                 check=True)
         print(tree)
+        # ostree("container", "image", "deploy",
+        #        *extra_args,
+        #        sysroot=f"{tree}")
         ostree("container", "image", "deploy",
                *extra_args,
-               sysroot=f"{tree}")
+               sysroot=f"/run/osbuild/inputs/tree")
+               
                
 
 

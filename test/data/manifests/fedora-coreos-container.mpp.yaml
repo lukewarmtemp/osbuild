@@ -90,7 +90,7 @@ pipelines:
           paths:
             - path: /boot/efi
               mode: 448
-      # - type: org.osbuild.ignition
+      - type: org.osbuild.ignition
       # - type: org.osbuild.ostree.deploy
       #   options:
       #     osname: fedora-coreos
