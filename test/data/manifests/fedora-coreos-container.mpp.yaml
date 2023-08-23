@@ -29,14 +29,14 @@ sources:
       bf28f852e934b0c0b9eee232a58970e96adb3e691299b02376f8719530e03fb3:
         remote:
           url: https://kojipkgs.fedoraproject.org/ostree/repo/
-  org.osbuild.skopeo:
-    items:
-      sha256:8bbdde9426167777c24e7c705df71064925e2e463ce85d4ca7f255653261d5b1:
-        image: {
-          name: "quay.io/fedora/fedora-coreos:testing-devel",
-          digest: "sha256:b2f85b1cbd6fba21f20715efad4e3c603f4e73def3da07df180e04c617592c72",
-          tls-verify: false
-      }
+  # org.osbuild.skopeo:
+  #   items:
+  #     sha256:8bbdde9426167777c24e7c705df71064925e2e463ce85d4ca7f255653261d5b1:
+  #       image: {
+  #         name: "quay.io/fedora/fedora-coreos:testing-devel",
+  #         digest: "sha256:b2f85b1cbd6fba21f20715efad4e3c603f4e73def3da07df180e04c617592c72",
+  #         tls-verify: false
+  #     }
 pipelines:
   - mpp-import-pipelines:
       path: fedora-vars.ipp.yaml
@@ -60,19 +60,19 @@ pipelines:
             sysroot:
               readonly: false
               bootloader: none
-      # - type: org.osbuild.skopeo
-      #   inputs:
-      #     images:
-      #       type: org.osbuild.containers
-      #       origin: org.osbuild.source
-      #       mpp-resolve-images:
-      #         images:
-      #           - source: quay.io/fedora/fedora-coreos
-      #             tag: stable
-        # options:
-        #   destination:
-        #     type: containers-storage
-        #     storage-path: /usr/share/containers/storage
+      - type: org.osbuild.skopeo
+        inputs:
+          images:
+            type: org.osbuild.containers
+            origin: org.osbuild.source
+            mpp-resolve-images:
+              images:
+                - source: quay.io/fedora/fedora-coreos
+                  tag: stable
+        options:
+          destination:
+            type: containers-storage
+            storage-path: /usr/share/containers/storage
       - type: org.osbuild.ostree.pull
         options:
           repo: /ostree/repo
