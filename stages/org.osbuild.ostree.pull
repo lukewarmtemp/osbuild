@@ -126,6 +126,14 @@ def main(tree, inputs, options):
         #            check=True)
 
         # we already pulled with skopeo, so just find
+
+        extra_args = []
+        extra_args.append("--src-tls-verify=false")
+
+        subprocess.run(["skopeo", "copy"] + extra_args + ['docker://quay.io/fedora/fedora-coreos:testing-devel', 'containers-storage:localhost/fcos'],
+                        encoding="utf-8",
+                        check=True)
+        
         ostree("container", "image", "deploy",
                *extra_args,
                sysroot=f"{tree}")
