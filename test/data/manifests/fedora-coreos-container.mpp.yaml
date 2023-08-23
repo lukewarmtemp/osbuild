@@ -69,6 +69,7 @@ pipelines:
               images:
                 - source: quay.io/fedora/fedora-coreos
                   tag: stable
+                  name: localhost/fcos
         options:
           destination:
             type: containers-storage
