@@ -61,6 +61,23 @@ SCHEMA_2 = """
       "description": "optional OStree remote to use for the deployment",
       "type": "string"
     },
+    "container": {
+      "description": "Bool to indicate if the deployment is a container",
+      "type": "boolean"
+    },
+    "container-storage": {
+      "type": "object",
+      "properties": {
+        "storage-path": {
+          "description": "Container storage location (default /var/lib/containers/storage).",
+          "type": "string"
+        },
+        "storage-driver": {
+          "description": "The container storage driver to use (default overlay).",
+          "type": "string"
+        }
+      }
+    },
     "rootfs": {
       "description": "Identifier to locate the root file system",
       "type": "object",
@@ -111,6 +128,7 @@ def main(tree, inputs, options):
     kopts = options.get("kernel_opts", [])
     ref = options["ref"]
     remote = options.get("remote")
+    is_container = options.get("container")
 
     # If provided an input then do the pull into the tree
     if len(inputs) != 0:
@@ -121,17 +139,22 @@ def main(tree, inputs, options):
             ostree.pull_local(source_repo, target_repo, remote, loopref)
 
 
-    if remote:
-        ref = f"{remote}:{ref}"
-
     kargs = []
 
-    if rootfs:
-        rootfs_id = make_fs_identifier(rootfs)
-        kargs += [f"--karg=root={rootfs_id}"]
+    if (not is_container):
+      if remote:
+          ref = f"{remote}:{ref}"
 
-    for opt in kopts:
-        kargs += [f"--karg-append={opt}"]
+      if rootfs:
+          rootfs_id = make_fs_identifier(rootfs)
+          kargs += [f"--karg=root={rootfs_id}"]
+
+      for opt in kopts:
+          kargs += [f"--karg-append={opt}"]
+
+    else:
+      for opt in kopts:
+          kargs += [f"--karg={opt}"]
 
     with MountGuard() as mounter:
         for mount in mounts:
@@ -139,11 +162,43 @@ def main(tree, inputs, options):
             path = os.path.join(tree, path)
             mounter.mount(path, path)
 
-        ostree.cli("admin", "deploy", ref,
-                   *kargs,
-                   sysroot=tree,
-                   os=osname)
+        if (not is_container):
+            ostree.cli("admin", "deploy", ref,
+                       *kargs,
+                       sysroot=tree,
+                       os=osname)
+        
+        else:
+            # create a temporary directory to store the ostree commit id after deploying the container image
+            os.mkdir(f"{tree}/tmp")
+            
+            # parse and construct the imgref of the container image pulled during the skopeo stage
+            destination = options["container-source"]
+            storage_root = destination.get("storage-path", "/var/lib/containers/storage")
+            storage_driver = destination.get("storage-driver", "overlay")
 
+            imgref = f"{remote}:containers-storage:[{storage_driver}@{tree}{storage_root}+/run/containers/storage]{ref}"
+            
+            extra_args = []
+            if remote:
+                extra_args.append(f'--imgref={imgref}')
+                extra_args.append(f'--stateroot={osname}')
+                extra_args.append(f'--write-commitid-to={tree}/tmp/commit.txt')
+
+            ostree.cli("container", "image", "deploy",
+                       *extra_args,
+                       sysroot=tree, 
+                       *kargs)
+            
+            f = open(f'{tree}/tmp/commit.txt', 'r')
+            commit = f.read()
+            target = f"{tree}/ostree/deploy/{osname}/deploy/{commit}.0.origin"
+            
+            end_of_line = '$d'
+            subprocess.run(["sed", "-i", f"{end_of_line}", target], check=True)
+            
+            remote_source = '$acontainer-image-reference=ostree-unverified-registry:quay.io/fedora/fedora-coreos:stable'
+            subprocess.run(["sed", "-i", f"{remote_source}", target], check=True)
 
 if __name__ == '__main__':
     stage_args = osbuild.api.arguments()
