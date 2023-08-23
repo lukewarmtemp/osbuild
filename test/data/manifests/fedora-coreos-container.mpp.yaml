@@ -95,7 +95,7 @@ pipelines:
         options:
           osname: fedora-coreos
           ref: containers-storage:[overlay@/run/osbuild/tree/usr/share/containers/storage+/run/containers/storage]localhost/fcos
-          remote: fedora
+          remote: ostree-unverified-image
           mounts:
             - /boot
             - /boot/efi
@@ -113,7 +113,7 @@ pipelines:
         options:
           deployment:
             osname: fedora-coreos
-            ref: fedora/x86_64/coreos/stable
+            ref: containers-storage:[overlay@/run/osbuild/tree/usr/share/containers/storage+/run/containers/storage]localhost/fcos
       - type: org.osbuild.grub2
         options:
           rootfs:
