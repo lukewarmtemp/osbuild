@@ -103,9 +103,11 @@ class SkopeoSource(sources.SourceService):
             if not tls_verify:
                 extra_args.append("--src-tls-verify=false")
             
+            print("hello")
             print(["skopeo", "copy"] + extra_args + [source, destination],
                 encoding="utf-8",
                 check=True)
+                
 
             # Verify that the digest supplied downloaded the correct container image id.
             # The image id is the digest of the config, but skopeo can't currently

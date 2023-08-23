@@ -115,12 +115,13 @@ def main(tree, inputs, options):
         
         args = ['copy', 'docker://quay.io/fedora/fedora-coreos:testing-devel', 'containers-storage:localhost/fcos']
         
-        subprocess.run(['skopeo'] + args,
-                   encoding="utf8",
-                   stdout=sys.stderr,
-                   input=None,
-                   check=True)
+        # subprocess.run(['skopeo'] + args,
+        #            encoding="utf8",
+        #            stdout=sys.stderr,
+        #            input=None,
+        #            check=True)
 
+        # we already pulled with skopeo, so just find
         ostree("container", "image", "deploy",
                *extra_args,
                sysroot=f"{tree}")
