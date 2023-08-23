@@ -133,7 +133,7 @@ def main(tree, inputs, options):
         # subprocess.run(["skopeo", "copy"] + extra_args + ['docker://quay.io/fedora/fedora-coreos:testing-devel', 'containers-storage:localhost/fcos'],
         #                 encoding="utf-8",
         #                 check=True)
-        
+        print(tree)
         ostree("container", "image", "deploy",
                *extra_args,
                sysroot=f"{tree}")
