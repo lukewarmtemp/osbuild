@@ -94,7 +94,7 @@ def main(tree, inputs, options):
 
         extra_args = []
         if remote:
-            extra_args.append(f'--imgref=containers-storage:[overlay@/run/osbuild/tree/usr/share/containers/storage+/run/containers/storage]localhost/fcos')
+            extra_args.append(f'--imgref=ostree-unverified-image:containers-storage:[overlay@/run/osbuild/tree/usr/share/containers/storage+/run/containers/storage]localhost/fcos')
             extra_args.append(f'--stateroot=fedora-coreos')
 
         subprocess.run("ls")
