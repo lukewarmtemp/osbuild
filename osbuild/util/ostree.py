@@ -167,6 +167,25 @@ def deployment_path(root: PathLike, osname: str, ref: str, serial: int):
     return sysroot
 
 
+def deployment_path_container(root: PathLike, osname: str, ref: str, serial: int):
+    """Return the path to a deployment given the parameters"""
+
+    base = os.path.join(root, "ostree")
+
+    repo = os.path.join(base, "repo")
+    stateroot = os.path.join(base, "deploy", osname)
+    
+    f = open(f'{root}/tmp/commit.txt', 'r')
+    file_contents = f.read()
+    print (file_contents)
+    sysroot = f"{stateroot}/deploy/{file_contents}.{serial}"
+    f.close()
+    os.remove(f"{root}/tmp/commit.txt")
+    os.rmdir(f"{root}/tmp")
+
+    return sysroot
+
+
 class PasswdLike:
     """Representation of a file with structure like /etc/passwd
 
