@@ -106,6 +106,9 @@ class SkopeoSource(sources.SourceService):
                            encoding="utf-8",
                            check=True)
 
+            print(destination)
+            print(image_id)
+
             # Verify that the digest supplied downloaded the correct container image id.
             # The image id is the digest of the config, but skopeo can't currently
             # get the config id, only the full config, so we checksum it ourselves.
