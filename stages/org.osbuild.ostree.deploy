@@ -126,10 +126,19 @@ def main(tree, options):
             path = os.path.join(tree, path)
             mounter.mount(path, path)
 
-        ostree("admin", "deploy", ref,
-               *kargs,
-               sysroot=tree,
-               os=osname)
+        # ostree("admin", "deploy", ref,
+        #        *kargs,
+        #        sysroot=tree,
+        #        os=osname)
+        
+        extra_args = []
+        if remote:
+            extra_args.append(f'--imgref={ref}')
+            extra_args.append(f'--stateroot=fedora-coreos')
+
+        ostree("container", "image", "deploy",
+               *extra_args,
+               sysroot=tree)
 
 
 if __name__ == '__main__':
