@@ -60,15 +60,15 @@ pipelines:
             sysroot:
               readonly: false
               bootloader: none
-      - type: org.osbuild.skopeo
-        inputs:
-          images:
-            type: org.osbuild.containers
-            origin: org.osbuild.source
-            mpp-resolve-images:
-              images:
-                - source: quay.io/fedora/fedora-coreos
-                  tag: stable
+      # - type: org.osbuild.skopeo
+      #   inputs:
+      #     images:
+      #       type: org.osbuild.containers
+      #       origin: org.osbuild.source
+      #       mpp-resolve-images:
+      #         images:
+      #           - source: quay.io/fedora/fedora-coreos
+      #             tag: stable
         options:
           destination:
             type: containers-storage
