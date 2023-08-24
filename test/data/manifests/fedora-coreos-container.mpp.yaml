@@ -84,11 +84,12 @@ pipelines:
             - systemd.journald.forward_to_console=1
             - ignition.platform.id=qemu
             - '$ignition_firstboot'
-      - type: org.osbuild.ostree.selinux
-        options:
-          deployment:
-            osname: fedora-coreos
-            ref: localhost/fcos
+            - enforcing=0
+      # - type: org.osbuild.ostree.selinux
+      #   options:
+      #     deployment:
+      #       osname: fedora-coreos
+      #       ref: localhost/fcos
       - type: org.osbuild.grub2
         options:
           rootfs:

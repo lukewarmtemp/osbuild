@@ -136,8 +136,10 @@ def main(tree, options):
             extra_args.append(f'--imgref={ref}')
             extra_args.append(f'--stateroot=fedora-coreos')
 
+        # pass kernel args here
         ostree("container", "image", "deploy",
                *extra_args,
+               *kargs,
                sysroot=tree)
 
 
