@@ -60,7 +60,7 @@ def main(tree, options):
                        check=False)
     print(r)
 
-    r = subprocess.run(["ostree", "admin", "status"],
+    r = subprocess.run(["ostree", "admin", "status", f"--repo={repo}"],
                        encoding="utf8",
                        stdout=subprocess.PIPE,
                        stderr=subprocess.STDOUT,
