@@ -117,8 +117,11 @@ def main(tree, options):
         rootfs_id = make_fs_identifier(rootfs)
         kargs += [f"--karg=root={rootfs_id}"]
 
+    # for opt in kopts:
+    #     kargs += [f"--karg-append={opt}"]
+
     for opt in kopts:
-        kargs += [f"--karg-append={opt}"]
+        kargs += [f"--karg {opt}"]
 
     with MountGuard() as mounter:
         for mount in mounts:
