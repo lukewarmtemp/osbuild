@@ -87,6 +87,7 @@ def ostree(*args, _input=None, **kwargs):
     print("ostree " + " ".join(args), file=sys.stderr)
     r = subprocess.run(["ostree"] + args,
                    encoding="utf8",
+                   stdout=subprocess.PIPE,
                    stdout=sys.stderr,
                    input=_input,
                    check=True)
