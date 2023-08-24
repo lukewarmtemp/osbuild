@@ -41,7 +41,7 @@ SCHEMA = """
 }
 """
 
-
+import subprocess
 def main(tree, options):
     dep = options["deployment"]
     osname = dep["osname"]
@@ -51,6 +51,12 @@ def main(tree, options):
     # this created a state root at `osname`
     stateroot = f"{tree}/ostree/deploy/{osname}"
 
+    r = subprocess.run(["ostree", "refs", "--list"],
+                       encoding="utf8",
+                       stdout=subprocess.PIPE,
+                       stderr=subprocess.STDOUT,
+                       check=False)
+    
     root = ostree.deployment_path(tree, osname, ref, serial)
 
     # deploying a tree creates new files that need to be properly
