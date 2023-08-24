@@ -85,11 +85,11 @@ pipelines:
             - ignition.platform.id=qemu
             - '$ignition_firstboot'
             - enforcing=0
-      # - type: org.osbuild.ostree.selinux
-      #   options:
-      #     deployment:
-      #       osname: fedora-coreos
-      #       ref: localhost/fcos
+      - type: org.osbuild.ostree.selinux
+        options:
+          deployment:
+            osname: fedora-coreos
+            ref: containers-storage:[overlay@/run/osbuild/tree/usr/share/containers/storage+/run/containers/storage]localhost/fcos
       - type: org.osbuild.grub2
         options:
           rootfs:
