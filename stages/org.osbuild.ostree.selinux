@@ -51,7 +51,9 @@ def main(tree, options):
     # this created a state root at `osname`
     stateroot = f"{tree}/ostree/deploy/{osname}"
 
-    r = subprocess.run(["ostree", "refs", "--list"],
+    base = os.path.join(tree, "ostree")
+    repo = os.path.join(base, "repo")
+    r = subprocess.run(["ostree", "refs", "--list", f"--repo={repo}"],
                        encoding="utf8",
                        stdout=subprocess.PIPE,
                        stderr=subprocess.STDOUT,
