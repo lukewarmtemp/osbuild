@@ -84,11 +84,11 @@ pipelines:
             - systemd.journald.forward_to_console=1
             - ignition.platform.id=qemu
             - '$ignition_firstboot'
-      # - type: org.osbuild.ostree.selinux
-      #   options:
-      #     deployment:
-      #       osname: fedora-coreos
-      #       ref: ostree-unverified-image:containers-storage:[overlay@/run/osbuild/tree/usr/share/containers/storage+/run/containers/storage]localhost/fcos
+      - type: org.osbuild.ostree.selinux
+        options:
+          deployment:
+            osname: fedora-coreos
+            ref: containers-storage:[overlay@/run/osbuild/tree/usr/share/containers/storage+/run/containers/storage]localhost/fcos
       - type: org.osbuild.grub2
         options:
           rootfs:
