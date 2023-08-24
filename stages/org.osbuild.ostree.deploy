@@ -142,8 +142,8 @@ def main(tree, options):
         # pass kernel args here
         ostree("container", "image", "deploy",
                *extra_args,
-               *kargs,
-               sysroot=tree)
+               sysroot=tree, 
+               *kargs)
 
 
 if __name__ == '__main__':
