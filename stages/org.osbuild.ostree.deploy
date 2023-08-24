@@ -121,7 +121,7 @@ def main(tree, options):
     #     kargs += [f"--karg-append={opt}"]
 
     for opt in kopts:
-        kargs += [f"--karg '{opt}'"]
+        kargs += [f"--karg={opt}"]
 
     with MountGuard() as mounter:
         for mount in mounts:
