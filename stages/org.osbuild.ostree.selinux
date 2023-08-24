@@ -56,7 +56,7 @@ def main(tree, options):
                        stdout=subprocess.PIPE,
                        stderr=subprocess.STDOUT,
                        check=False)
-    
+    print(r)
     root = ostree.deployment_path(tree, osname, ref, serial)
 
     # deploying a tree creates new files that need to be properly
