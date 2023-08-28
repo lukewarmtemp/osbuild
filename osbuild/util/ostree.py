@@ -182,6 +182,13 @@ def deployment_path(root: PathLike, osname: str, ref: str, serial: int):
                        stdout=subprocess.PIPE,
                        stderr=subprocess.STDOUT,
                        check=False)
+    
+    r = subprocess.run(["ostree", "admin", "status"],
+                       encoding="utf8",
+                       stdout=subprocess.PIPE,
+                       stderr=subprocess.STDOUT,
+                       check=False)
+
     print(r)
 
     return sysroot
