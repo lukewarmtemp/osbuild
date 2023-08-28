@@ -165,7 +165,7 @@ def deployment_path(root: PathLike, osname: str, ref: str, serial: int):
     # skopeo inspect containers-storage:[] | jq 
 
     # pipe = "| jq '.Labels[\"ostree.commit\"]'"
-    r = subprocess.run(["skopeo", "inspect", "containers-storage:[overlay@/run/osbuild/tree/usr/share/containers/storage+/run/containers/storage]localhost/fcos", "|", "jq", "\'.Labels[\"ostree.commit\"]\'"],
+    r = subprocess.run(["skopeo", "inspect", "containers-storage:[overlay@/run/osbuild/tree/usr/share/containers/storage+/run/containers/storage]localhost/fcos", "|", "jq", """'.Labels["ostree.commit"]'"""],
                        encoding="utf8",
                        stdout=subprocess.PIPE,
                        stderr=subprocess.STDOUT,
