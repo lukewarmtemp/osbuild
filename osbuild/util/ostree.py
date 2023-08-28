@@ -170,8 +170,12 @@ def deployment_path(root: PathLike, osname: str, ref: str, serial: int):
                        stdout=subprocess.PIPE,
                        stderr=subprocess.STDOUT,
                        check=False)
-    print(r)
-    commit = r.stdout.strip() 
+    output = r.stdout.strip() 
+    commit = subprocess.run(["jq", f"{pipe}", ">>>", f"{output}"],
+                       encoding="utf8",
+                       stdout=subprocess.PIPE,
+                       stderr=subprocess.STDOUT,
+                       check=False)
     print(commit)
     sysroot = f"{stateroot}/deploy/{commit}.{serial}"
 
