@@ -177,7 +177,7 @@ def deployment_path(root: PathLike, osname: str, ref: str, serial: int):
     print(commit)
     sysroot = f"{stateroot}/deploy/{commit}.{serial}"
 
-    r = subprocess.run(["tree", "/run/osbuild/tree/ostree/deploy/"],
+    r = subprocess.run(["ls", "-R", "/run/osbuild/tree/ostree/deploy/"],
                        encoding="utf8",
                        stdout=subprocess.PIPE,
                        stderr=subprocess.STDOUT,
