@@ -176,7 +176,7 @@ def deployment_path(root: PathLike, osname: str, ref: str, serial: int):
     commit = data["Labels"]["ostree.commit"]
     print(commit)
     # sysroot = f"{stateroot}/deploy/{commit}.{serial}"
-    sysroot = f"{stateroot}/deploy/94bdda6e91dc7deb3429d16f854dc85bcf2403cac39a0483e82470169e3e19f.{serial}"
+    # sysroot = f"{stateroot}/deploy/94bdda6e91dc7deb3429d16f854dc85bcf2403cac39a0483e82470169e3e19f.{serial}"
     # 94bdda6e91dc7deb3429d16f854dc85bcf2403cac39a0483e82470169e3e19f.0
     # /run/osbuild/tree/ostree/deploy/fedora-coreos/deploy/94bdda6e91dc7deb3429d16f854dc85bcf2403cac39a0483e82470169e3e19f.0/usr/etc/selinux/targeted/contexts/files/file_contexts: No such file or directory
     r = subprocess.run(["ls", "/run/osbuild/tree/ostree/deploy/fedora-coreos/deploy"],
@@ -185,7 +185,8 @@ def deployment_path(root: PathLike, osname: str, ref: str, serial: int):
                        stderr=subprocess.STDOUT,
                        check=False)
     
-    sysroot = r.stdout.splitlines()[0]
+    commit = r.stdout.splitlines()[0]
+    sysroot = f"{stateroot}/deploy/{commit}.{serial}"
     
     # tmp = "/run/osbuild/tree"
     # r = subprocess.run(["ostree", "admin", "status", f"sysroot={tmp}"],
