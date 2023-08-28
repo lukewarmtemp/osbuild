@@ -160,6 +160,7 @@ def deployment_path(root: PathLike, osname: str, ref: str, serial: int):
 
     repo = os.path.join(base, "repo")
     stateroot = os.path.join(base, "deploy", osname)
+    stateroot = base
 
     # commit = rev_parse(repo, ref)
     # skopeo inspect containers-storage:[] | jq 
