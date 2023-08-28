@@ -58,7 +58,7 @@ def main(tree, options):
                        stdout=subprocess.PIPE,
                        stderr=subprocess.STDOUT,
                        check=False)
-    print(r)
+    # print(r)
 
     # r = subprocess.run(["ostree", "admin", "status"],
     #                    encoding="utf8",
@@ -67,6 +67,7 @@ def main(tree, options):
     #                    check=False)
     # print(r)
     root = ostree.deployment_path(tree, osname, ref, serial)
+    print(root)
 
     # deploying a tree creates new files that need to be properly
     # labeled for SELinux. In theory, ostree will take care of
