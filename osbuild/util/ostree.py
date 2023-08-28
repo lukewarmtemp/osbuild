@@ -191,7 +191,7 @@ def deployment_path(root: PathLike, osname: str, ref: str, serial: int):
     #                    stderr=subprocess.STDOUT,
     #                    check=False)
 
-    print(r)
+    # print(r)
 
     return sysroot
 
