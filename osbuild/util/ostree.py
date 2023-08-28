@@ -161,7 +161,15 @@ def deployment_path(root: PathLike, osname: str, ref: str, serial: int):
     repo = os.path.join(base, "repo")
     stateroot = os.path.join(base, "deploy", osname)
 
-    commit = rev_parse(repo, ref)
+    # commit = rev_parse(repo, ref)
+    # skopeo inspect containers-storage:[] | jq 
+    r = subprocess.run(["skopeo", "inspect", "containers-storage:[overlay@/run/osbuild/tree/usr/share/containers/storage+/run/containers/storage]localhost/fcos"],
+                       encoding="utf8",
+                       stdout=subprocess.PIPE,
+                       stderr=subprocess.STDOUT,
+                       check=False)
+
+    commit = r.stdout.strip() 
     sysroot = f"{stateroot}/deploy/{commit}.{serial}"
 
     return sysroot
