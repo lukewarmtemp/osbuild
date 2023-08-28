@@ -171,11 +171,8 @@ def deployment_path(root: PathLike, osname: str, ref: str, serial: int):
                        stderr=subprocess.STDOUT,
                        check=False)
     output = r.stdout.strip() 
-    commit = subprocess.run(["jq", f"{pipe}", "<<<", f"{output}"],
-                       encoding="utf8",
-                       stdout=subprocess.PIPE,
-                       stderr=subprocess.STDOUT,
-                       check=False)
+    data = json.loads(output)
+    commit = data["Labels"]["ostree.commit"]
     print(commit)
     sysroot = f"{stateroot}/deploy/{commit}.{serial}"
 
