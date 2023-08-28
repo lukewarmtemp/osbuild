@@ -78,6 +78,12 @@ def main(tree, options):
     # least for now, and manually re-label the affected paths
     se_policy = None
 
+    # relabeling means that we're relabeling the tags. ie) ls -Z
+    # se manage policy command: lets you relabel everything under a folder and checks the policy for the folder and puts what is correct
+    # in a nutshell, a lot of metadata adding to files
+
+    # policy is what tags are set
+    # check if there's anything the etc/selinux files and if it has those files in place and if it's reading it
     for p in ["etc/selinux", "usr/etc/selinux"]:
         se_home = os.path.join(root, p)
         cfgfile = os.path.join(se_home, "config")
@@ -90,9 +96,12 @@ def main(tree, options):
 
         if se_policy:
             break
-
+    
+    se_policy = "targeted" # see if this builds first and if it works, it means that it can't read the selinux config file
+    # if targeted doesn't work, you can try setting it to 'permissive'
     if not se_policy:
         raise ValueError("Could not find SELinux policy")
+
 
     spec = f"{se_home}/{se_policy}/contexts/files/file_contexts"
     # kernel, initramfs & BLS config snippets were
