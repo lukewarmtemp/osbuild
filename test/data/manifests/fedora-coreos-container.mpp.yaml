@@ -84,7 +84,7 @@ pipelines:
             - systemd.journald.forward_to_console=1
             - ignition.platform.id=qemu
             - '$ignition_firstboot'
-            - enforcing=0
+            # - enforcing=0
       - type: org.osbuild.ostree.selinux
         options:
           deployment:
