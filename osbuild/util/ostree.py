@@ -183,7 +183,7 @@ def deployment_path(root: PathLike, osname: str, ref: str, serial: int):
                        stderr=subprocess.STDOUT,
                        check=False)
     
-    tmp = "/run/osbuild/tree/ostree"
+    tmp = "/run/osbuild/tree"
     r = subprocess.run(["ostree", "admin", "status", f"sysroot={tmp}"],
                        encoding="utf8",
                        stdout=subprocess.PIPE,
