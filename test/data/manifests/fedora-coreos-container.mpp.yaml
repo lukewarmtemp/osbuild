@@ -23,6 +23,14 @@ mpp-define-image:
       - id: root
         type: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
         uuid: CA7D7CCB-63ED-4C53-861C-1742536059CC
+sources:
+  org.osbuild.skopeo:
+    items:
+      localhost/fcos:
+        source:
+          type: oci
+          url: quay.io/fedora/fedora-coreos
+          tag: testing-devel
 pipelines:
   - mpp-import-pipelines:
       path: fedora-vars.ipp.yaml
