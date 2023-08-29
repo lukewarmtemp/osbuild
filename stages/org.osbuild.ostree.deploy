@@ -134,6 +134,18 @@ def main(tree, options):
         #        *kargs,
         #        sysroot=tree,
         #        os=osname)
+
+        subprocess.run(["mkdir", f"{tree}/run"],
+                       encoding="utf8",
+                       stdout=subprocess.PIPE,
+                       stderr=subprocess.STDOUT,
+                       check=False)
+        
+        subprocess.run(["touch", f"{tree}/run/commit.txt"],
+                       encoding="utf8",
+                       stdout=subprocess.PIPE,
+                       stderr=subprocess.STDOUT,
+                       check=False)
         
         extra_args = []
         if remote:
