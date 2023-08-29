@@ -135,13 +135,13 @@ def main(tree, options):
         #        sysroot=tree,
         #        os=osname)
 
-        subprocess.run(["mkdir", f"{tree}/run"],
+        subprocess.run(["mkdir", f"{tree}/tmp"],
                        encoding="utf8",
                        stdout=subprocess.PIPE,
                        stderr=subprocess.STDOUT,
                        check=False)
         
-        subprocess.run(["touch", f"{tree}/run/commit.txt"],
+        subprocess.run(["touch", f"{tree}/tmp/commit.txt"],
                        encoding="utf8",
                        stdout=subprocess.PIPE,
                        stderr=subprocess.STDOUT,
