@@ -98,7 +98,7 @@ def main(tree, options):
             break
 
 
-    se_policy = "targeted" # see if this builds first and if it works, it means that it can't read the selinux config file
+    # se_policy = "targeted" # see if this builds first and if it works, it means that it can't read the selinux config file
     # if targeted doesn't work, you can try setting it to 'permissive'
     if not se_policy:
         raise ValueError("Could not find SELinux policy")
