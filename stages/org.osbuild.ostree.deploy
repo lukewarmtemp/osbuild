@@ -139,7 +139,7 @@ def main(tree, options):
         if remote:
             extra_args.append(f'--imgref={ref}')
             extra_args.append(f'--stateroot=fedora-coreos')
-            extra_args.append(f'--write-commitid-to {tree}/tmp/commit.txt')
+            extra_args.append(f'--write-commitid-to={tree}/tmp/commit.txt')
 
         # pass kernel args here
         ostree("container", "image", "deploy",
