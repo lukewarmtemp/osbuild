@@ -28,7 +28,7 @@ sources:
     items:
       sha256:3de62c8e0a55d07c40c4be7ef42a58d1d54d7b3f17ae3553963bffbdebe4ace7:
         image:
-          name: quay.io/fedora/fedora-coreos
+          name: quay.io/fedora/fedora-coreos:testing-devel
           digest: sha256:3de62c8e0a55d07c40c4be7ef42a58d1d54d7b3f17ae3553963bffbdebe4ace7
           tls-verify: false
 pipelines:
