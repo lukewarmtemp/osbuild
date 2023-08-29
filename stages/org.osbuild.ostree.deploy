@@ -140,17 +140,17 @@ def main(tree, options):
             extra_args.append(f'--imgref={ref}')
             extra_args.append(f'--stateroot=fedora-coreos')
             extra_args.append(f'--write-commitid-to {tree}/tmp/commit.txt')
-        
-        f = open(f'{tree}/tmp/commit.txt', 'r')
-        file_contents = f.read()
-        print (file_contents)
-        f.close()
 
         # pass kernel args here
         ostree("container", "image", "deploy",
                *extra_args,
                sysroot=tree, 
                *kargs)
+        
+        f = open(f'{tree}/tmp/commit.txt', 'r')
+        file_contents = f.read()
+        print (file_contents)
+        f.close()
 
 
 if __name__ == '__main__':
