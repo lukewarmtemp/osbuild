@@ -26,11 +26,11 @@ mpp-define-image:
 sources:
   org.osbuild.skopeo:
     items:
-      localhost/fcos:
-        source:
-          type: oci
-          url: quay.io/fedora/fedora-coreos
-          tag: testing-devel
+      bf28f852e934b0c0b9eee232a58970e96adb3e691299b02376f8719530e03fb3:
+        image:
+          name: localhost/fcos
+          digest: 3de62c8e0a55d07c40c4be7ef42a58d1d54d7b3f17ae3553963bffbdebe4ace7
+          tls-verify: false
 pipelines:
   - mpp-import-pipelines:
       path: fedora-vars.ipp.yaml
