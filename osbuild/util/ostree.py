@@ -188,6 +188,7 @@ def deployment_path(root: PathLike, osname: str, ref: str, serial: int):
     # sysroot = f"{stateroot}/deploy/94bdda6e91dc7deb3429d16f854dc85bcf2403cac39a0483e82470169e3e19f.{serial}"
     # 94bdda6e91dc7deb3429d16f854dc85bcf2403cac39a0483e82470169e3e19f.0
     # /run/osbuild/tree/ostree/deploy/fedora-coreos/deploy/94bdda6e91dc7deb3429d16f854dc85bcf2403cac39a0483e82470169e3e19f.0/usr/etc/selinux/targeted/contexts/files/file_contexts: No such file or directory
+    # 8f992814fa9ce565ed1e6bab75c0339f04805c8e420efbbb14151357cfb8948d.0
     r = subprocess.run(["ls", "/run/osbuild/tree/ostree/deploy/fedora-coreos/deploy"],
                        encoding="utf8",
                        stdout=subprocess.PIPE,
