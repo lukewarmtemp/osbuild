@@ -54,7 +54,7 @@ pipelines:
             mpp-resolve-images:
               images:
                 - source: quay.io/fedora/fedora-coreos
-                  tag: stable
+                  tag: testing-devel
                   name: localhost/fcos
         options:
           destination:
