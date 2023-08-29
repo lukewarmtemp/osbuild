@@ -80,8 +80,8 @@ pipelines:
             - rw
             - console=tty0
             - console=ttyS0
-            - systemd.log_target=console
-            - systemd.journald.forward_to_console=1
+            # - systemd.log_target=console -> these aren't ones that we have
+            # - systemd.journald.forward_to_console=1 -> these aren't ones that we have
             - ignition.platform.id=qemu
             - '$ignition_firstboot'
             # - enforcing=0
