@@ -127,8 +127,8 @@ def main(tree, options):
     remote = options.get("remote")
     is_container = options["container"]
 
-    if remote:
-        ref = f"{remote}:{ref}"
+    # if remote:
+    #     ref = f"{remote}:{ref}"
 
     kargs = []
 
@@ -169,7 +169,7 @@ def main(tree, options):
         storage_root = destination.get("storage-path", "/var/lib/containers/storage")
         storage_driver = destination.get("storage-driver", "overlay")
 
-        dest = f"containers-storage:[{storage_driver}@{tree}{storage_root}+/run/containers/storage]{ref}"
+        dest = f"{remote}:containers-storage:[{storage_driver}@{tree}{storage_root}+/run/containers/storage]{ref}"
         
         extra_args = []
         if remote:
