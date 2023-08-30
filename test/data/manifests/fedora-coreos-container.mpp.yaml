@@ -26,6 +26,7 @@ mpp-define-image:
 sources:
   org.osbuild.skopeo:
     items:
+      # not sure how osbuild-composer works, but we need to checksum the image we pull ourselves and write it here
       sha256:1d057c39b95859b0d347db7b7fe38313b038dcbab7b82201875c4d35ddb3d48a:
         image:
           name: quay.io/fedora/fedora-coreos
