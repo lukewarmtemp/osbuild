@@ -127,20 +127,22 @@ def main(tree, options):
     remote = options.get("remote")
     is_container = options["container"]
 
-    # if remote:
-    #     ref = f"{remote}:{ref}"
-
     kargs = []
 
-    # if rootfs:
-    #     rootfs_id = make_fs_identifier(rootfs)
-    #     kargs += [f"--karg=root={rootfs_id}"]
+    if (not is_container):
+      if remote:
+          ref = f"{remote}:{ref}"
 
-    # for opt in kopts:
-    #     kargs += [f"--karg-append={opt}"]
+      if rootfs:
+          rootfs_id = make_fs_identifier(rootfs)
+          kargs += [f"--karg=root={rootfs_id}"]
 
-    for opt in kopts:
-        kargs += [f"--karg={opt}"]
+      for opt in kopts:
+          kargs += [f"--karg-append={opt}"]
+
+    else:
+      for opt in kopts:
+          kargs += [f"--karg={opt}"]
 
     with MountGuard() as mounter:
         for mount in mounts:
@@ -148,45 +150,49 @@ def main(tree, options):
             path = os.path.join(tree, path)
             mounter.mount(path, path)
 
-        # ostree("admin", "deploy", ref,
-        #        *kargs,
-        #        sysroot=tree,
-        #        os=osname)
+        if (not is_container):
+          ostree("admin", "deploy", ref,
+                 *kargs,
+                 sysroot=tree,
+                 os=osname)
+        
+        else:
+          os.mkdir(f"{tree}/tmp")
+          os.mk
+          # subprocess.run(["mkdir", f"{tree}/tmp"],
+          #               encoding="utf8",
+          #               stdout=subprocess.PIPE,
+          #               stderr=subprocess.STDOUT,
+          #               check=False)
+          
+          # subprocess.run(["touch", f"{tree}/tmp/commit.txt"],
+          #               encoding="utf8",
+          #               stdout=subprocess.PIPE,
+          #               stderr=subprocess.STDOUT,
+          #               check=False)
+          
+          destination = options["container-source"]
+          storage_root = destination.get("storage-path", "/var/lib/containers/storage")
+          storage_driver = destination.get("storage-driver", "overlay")
 
-        subprocess.run(["mkdir", f"{tree}/tmp"],
-                       encoding="utf8",
-                       stdout=subprocess.PIPE,
-                       stderr=subprocess.STDOUT,
-                       check=False)
-        
-        subprocess.run(["touch", f"{tree}/tmp/commit.txt"],
-                       encoding="utf8",
-                       stdout=subprocess.PIPE,
-                       stderr=subprocess.STDOUT,
-                       check=False)
-        
-        destination = options["container-source"]
-        storage_root = destination.get("storage-path", "/var/lib/containers/storage")
-        storage_driver = destination.get("storage-driver", "overlay")
+          dest = f"{remote}:containers-storage:[{storage_driver}@{tree}{storage_root}+/run/containers/storage]{ref}"
+          
+          extra_args = []
+          if remote:
+              extra_args.append(f'--imgref={dest}')
+              extra_args.append(f'--stateroot=fedora-coreos')
+              extra_args.append(f'--write-commitid-to={tree}/tmp/commit.txt')
 
-        dest = f"{remote}:containers-storage:[{storage_driver}@{tree}{storage_root}+/run/containers/storage]{ref}"
-        
-        extra_args = []
-        if remote:
-            extra_args.append(f'--imgref={dest}')
-            extra_args.append(f'--stateroot=fedora-coreos')
-            extra_args.append(f'--write-commitid-to={tree}/tmp/commit.txt')
-
-        # pass kernel args here
-        ostree("container", "image", "deploy",
-               *extra_args,
-               sysroot=tree, 
-               *kargs)
-        
-        f = open(f'{tree}/tmp/commit.txt', 'r')
-        file_contents = f.read()
-        print (file_contents)
-        f.close()
+          # pass kernel args here
+          ostree("container", "image", "deploy",
+                *extra_args,
+                sysroot=tree, 
+                *kargs)
+          
+          f = open(f'{tree}/tmp/commit.txt', 'r')
+          file_contents = f.read()
+          print (file_contents)
+          f.close()
 
 
 if __name__ == '__main__':
