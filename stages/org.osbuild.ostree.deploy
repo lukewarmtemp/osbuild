@@ -80,7 +80,7 @@ SCHEMA = """
     "container": {
       "description": "Bool to indicate if the deployment is a container",
       "type": "boolean"
-    }
+    },
     "container-source": {
       "description": "Source of the container image",
       "type": "string"
