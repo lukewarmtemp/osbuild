@@ -26,10 +26,10 @@ mpp-define-image:
 sources:
   org.osbuild.skopeo:
     items:
-      sha256:c655b431a3d96200f669c4d96d732bf0f7cb1aacc4ca496e869ab83868e5bf92:
+      sha256:1d057c39b95859b0d347db7b7fe38313b038dcbab7b82201875c4d35ddb3d48a:
         image:
           name: quay.io/fedora/fedora
-          digest: sha256:c655b431a3d96200f669c4d96d732bf0f7cb1aacc4ca496e869ab83868e5bf92
+          digest: sha256:29c91786d914b50bd7dfc0cf45206520433bddcf9491860bd88e7373186e9d11
           tls-verify: false
   # org.osbuild.ostree:
   #   items:
