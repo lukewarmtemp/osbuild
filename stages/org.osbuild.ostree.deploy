@@ -158,7 +158,6 @@ def main(tree, options):
         
         else:
           os.mkdir(f"{tree}/tmp")
-          os.mk
           # subprocess.run(["mkdir", f"{tree}/tmp"],
           #               encoding="utf8",
           #               stdout=subprocess.PIPE,
