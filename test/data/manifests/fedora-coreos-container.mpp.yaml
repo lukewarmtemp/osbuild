@@ -77,7 +77,8 @@ pipelines:
       - type: org.osbuild.ostree.deploy
         options:
           osname: fedora-coreos
-          ref: containers-storage:[overlay@/run/osbuild/tree/usr/share/containers/storage+/run/containers/storage]localhost/fcos
+          # ref: containers-storage:[overlay@/run/osbuild/tree/usr/share/containers/storage+/run/containers/storage]localhost/fcos
+          ref: dir:quay.io/fedora/fedora-coreos
           remote: ostree-unverified-image
           mounts:
             - /boot
