@@ -97,8 +97,8 @@ class SkopeoSource(sources.SourceService):
             # We use the dir format because it is the most powerful in terms of feature support and is the closest to a
             # direct serialisation of the registry data.
             destination = f"dir:{archive_dir}/{self.dir_name}"
-
-            print(destination)
+            
+            print("hello " + destination)
 
             extra_args = []
             if not tls_verify:
