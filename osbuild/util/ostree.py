@@ -165,24 +165,24 @@ def deployment_path(root: PathLike, osname: str, ref: str, serial: int):
     # commit = rev_parse(repo, ref)
     # skopeo inspect containers-storage:[] | jq 
 
-    pipe = '.Labels["ostree.commit"]'
-    r = subprocess.run(["skopeo", "inspect", "containers-storage:[overlay@/run/osbuild/tree/usr/share/containers/storage+/run/containers/storage]localhost/fcos"],
-                       encoding="utf8",
-                       stdout=subprocess.PIPE,
-                       stderr=subprocess.STDOUT,
-                       check=False)
-    output = r.stdout.strip() 
-    data = json.loads(output)
-    commit = data["Labels"]["ostree.commit"]
-    print(commit)
+    # pipe = '.Labels["ostree.commit"]'
+    # r = subprocess.run(["skopeo", "inspect", "containers-storage:[overlay@/run/osbuild/tree/usr/share/containers/storage+/run/containers/storage]localhost/fcos"],
+    #                    encoding="utf8",
+    #                    stdout=subprocess.PIPE,
+    #                    stderr=subprocess.STDOUT,
+    #                    check=False)
+    # output = r.stdout.strip() 
+    # data = json.loads(output)
+    # commit = data["Labels"]["ostree.commit"]
+    # print(commit)
 
-    r = subprocess.run(["ostree", "admin", "status"],
-                       encoding="utf8",
-                       stdout=subprocess.PIPE,
-                       stderr=subprocess.STDOUT,
-                       check=False)
+    # r = subprocess.run(["ostree", "admin", "status"],
+    #                    encoding="utf8",
+    #                    stdout=subprocess.PIPE,
+    #                    stderr=subprocess.STDOUT,
+    #                    check=False)
     
-    print(r)
+    # print(r)
     
     # sysroot = f"{stateroot}/deploy/{commit}.{serial}"
     # sysroot = f"{stateroot}/deploy/94bdda6e91dc7deb3429d16f854dc85bcf2403cac39a0483e82470169e3e19f.{serial}"

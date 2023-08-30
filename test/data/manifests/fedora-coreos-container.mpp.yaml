@@ -84,7 +84,7 @@ pipelines:
         options:
           osname: fedora-coreos
           # ref: containers-storage:[overlay@/run/osbuild/tree/usr/share/containers/storage+/run/containers/storage]localhost/fcos
-          ref: dir:/home/luyang/dev/test-builds/sources/org.osbuild.containers/tmp-download-852e1mik/container-archive/image
+          ref: 1d057c39b95859b0d347db7b7fe38313b038dcbab7b82201875c4d35ddb3d48a
           remote: ostree-unverified-image
           mounts:
             - /boot
