@@ -63,10 +63,10 @@ pipelines:
       #           - source: quay.io/fedora/fedora-coreos
       #             tag: testing-devel
       #             name: localhost/fcos
-        options:
-          destination:
-            type: containers-storage
-            storage-path: /usr/share/containers/storage
+        # options:
+        #   destination:
+        #     type: containers-storage
+        #     storage-path: /usr/share/containers/storage
       - type: org.osbuild.mkdir
         options:
           paths:
