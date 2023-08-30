@@ -80,18 +80,18 @@ SCHEMA = """
     "container": {
       "description": "Bool to indicate if the deployment is a container",
       "type": "boolean"
-    },
-    "container-storage": {
-      "type": "object",
-      "properties": {
-        "storage-path": {
-          "description": "Container storage location (default /var/lib/containers/storage).",
-          "type": "string"
-        },
-        "storage-driver": {
-          "description": "The container storage driver to use (default overlay).",
-          "type": "string"
-        }
+    }
+  },
+  "container-storage": {
+    "type": "object",
+    "properties": {
+      "storage-path": {
+        "description": "Container storage location (default /var/lib/containers/storage).",
+        "type": "string"
+      },
+      "storage-driver": {
+        "description": "The container storage driver to use (default overlay).",
+        "type": "string"
       }
     }
   }
@@ -181,7 +181,7 @@ def main(tree, options):
               extra_args.append(f'--imgref={dest}')
               extra_args.append(f'--stateroot=fedora-coreos')
               extra_args.append(f'--write-commitid-to={tree}/tmp/commit.txt')
-              
+
           ostree("container", "image", "deploy",
                 *extra_args,
                 sysroot=tree, 
