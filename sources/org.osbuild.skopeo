@@ -98,6 +98,8 @@ class SkopeoSource(sources.SourceService):
             # direct serialisation of the registry data.
             destination = f"dir:{archive_dir}/{self.dir_name}"
 
+            print("hello " + destination)
+
             extra_args = []
             if not tls_verify:
                 extra_args.append("--src-tls-verify=false")
