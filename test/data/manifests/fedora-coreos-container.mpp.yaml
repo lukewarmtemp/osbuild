@@ -30,7 +30,7 @@ sources:
       sha256:1d057c39b95859b0d347db7b7fe38313b038dcbab7b82201875c4d35ddb3d48a:
         image:
           name: quay.io/fedora/fedora-coreos
-          digest: sha256:29c91786d914b50bd7dfc0cf45206520433bddcf9491860bd88e7373186e9d11
+          digest: sha256:1d057c39b95859b0d347db7b7fe38313b038dcbab7b82201875c4d35ddb3d48a
           tls-verify: false
 pipelines:
   - mpp-import-pipelines:
