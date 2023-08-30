@@ -23,14 +23,14 @@ mpp-define-image:
       - id: root
         type: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
         uuid: CA7D7CCB-63ED-4C53-861C-1742536059CC
-# sources:
-#   org.osbuild.skopeo:
-#     items:
-#       sha256:29c91786d914b50bd7dfc0cf45206520433bddcf9491860bd88e7373186e9d11:
-#         image:
-#           name: quay.io/fedora/fedora-coreos
-#           digest: sha256:29c91786d914b50bd7dfc0cf45206520433bddcf9491860bd88e7373186e9d11
-#           tls-verify: false
+sources:
+  org.osbuild.skopeo:
+    items:
+      sha256:1972716109b1c906120061063bd4cb50a46c2138d95002ccb90126928d98e013:
+        image:
+          name: quay.io/fedora/fedora
+          digest: sha256:1972716109b1c906120061063bd4cb50a46c2138d95002ccb90126928d98e013
+          tls-verify: false
 pipelines:
   - mpp-import-pipelines:
       path: fedora-vars.ipp.yaml
