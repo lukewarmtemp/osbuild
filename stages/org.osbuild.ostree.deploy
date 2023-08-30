@@ -77,6 +77,14 @@ SCHEMA = """
         "type": "string"
       }
     }
+    "container": {
+      "description": "Bool to indicate if the deployment is a container",
+      "type": "boolean"
+    }
+    "container-source": {
+      "description": "Source of the container image",
+      "type": "string"
+    }
   }
 }
 """
@@ -108,6 +116,7 @@ def main(tree, options):
     kopts = options.get("kernel_opts", [])
     ref = options["ref"]
     remote = options.get("remote")
+    is_container = options["container"]
 
     if remote:
         ref = f"{remote}:{ref}"
@@ -147,13 +156,17 @@ def main(tree, options):
                        stderr=subprocess.STDOUT,
                        check=False)
         
+        destination = options["container-source"]
+        storage_root = destination.get("storage-path", "/var/lib/containers/storage")
+        storage_driver = destination.get("storage-driver", "overlay")
+
+        dest = f"containers-storage:[{storage_driver}@{tree}{storage_root}+/run/containers/storage]{ref}"
+        
         extra_args = []
         if remote:
-            extra_args.append(f'--image=quay.io/fedora/fedora-coreos:testing-devel')
+            extra_args.append(f'--imgref={dest}')
             extra_args.append(f'--stateroot=fedora-coreos')
             extra_args.append(f'--write-commitid-to={tree}/tmp/commit.txt')
-            extra_args.append('--insecure-skip-tls-verification')
-            extra_args.append('--no-signature-verification')
 
         # pass kernel args here
         ostree("container", "image", "deploy",

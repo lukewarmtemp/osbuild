@@ -24,14 +24,14 @@ mpp-define-image:
         type: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
         uuid: CA7D7CCB-63ED-4C53-861C-1742536059CC
 # dir:/home/luyang/dev/test-builds/sources/org.osbuild.containers/tmp-download-852e1mik/container-archive/image
-sources:
-  org.osbuild.skopeo:
-    items:
-      sha256:1d057c39b95859b0d347db7b7fe38313b038dcbab7b82201875c4d35ddb3d48a:
-        image:
-          name: quay.io/fedora/fedora-coreos
-          digest: sha256:29c91786d914b50bd7dfc0cf45206520433bddcf9491860bd88e7373186e9d11
-          tls-verify: false
+# sources:
+#   org.osbuild.skopeo:
+#     items:
+#       sha256:1d057c39b95859b0d347db7b7fe38313b038dcbab7b82201875c4d35ddb3d48a:
+#         image:
+#           name: quay.io/fedora/fedora-coreos
+#           digest: sha256:29c91786d914b50bd7dfc0cf45206520433bddcf9491860bd88e7373186e9d11
+#           tls-verify: false
   # org.osbuild.ostree:
   #   items:
   #     bf28f852e934b0c0b9eee232a58970e96adb3e691299b02376f8719530e03fb3:
@@ -60,20 +60,20 @@ pipelines:
             sysroot:
               readonly: false
               bootloader: none
-      # - type: org.osbuild.skopeo
-      #   inputs:
-      #     images:
-      #       type: org.osbuild.containers
-      #       origin: org.osbuild.source
-      #       mpp-resolve-images:
-      #         images:
-      #           - source: quay.io/fedora/fedora-coreos
-      #             tag: testing-devel
-      #             name: localhost/fcos
-        # options:
-        #   destination:
-        #     type: containers-storage
-        #     storage-path: /usr/share/containers/storage
+      - type: org.osbuild.skopeo
+        inputs:
+          images:
+            type: org.osbuild.containers
+            origin: org.osbuild.source
+            mpp-resolve-images:
+              images:
+                - source: quay.io/fedora/fedora-coreos
+                  tag: testing-devel
+                  name: localhost/fcos
+        options:
+          destination:
+            type: containers-storage
+            storage-path: /usr/share/containers/storage
       - type: org.osbuild.mkdir
         options:
           paths:
@@ -84,13 +84,15 @@ pipelines:
         options:
           osname: fedora-coreos
           # ref: containers-storage:[overlay@/run/osbuild/tree/usr/share/containers/storage+/run/containers/storage]localhost/fcos
-          ref: quay.io/fedora/fedora-coreos:testing-devel
+          ref: localhost/fcos
           remote: ostree-unverified-image
           mounts:
             - /boot
             - /boot/efi
           rootfs:
             label: root
+          container: true
+          container-source: /usr/share/containers/storage
           kernel_opts:
             - rw
             - console=tty0
