@@ -76,7 +76,7 @@ SCHEMA = """
         "description": "Identify the root file system by UUID",
         "type": "string"
       }
-    }
+    },
     "container": {
       "description": "Bool to indicate if the deployment is a container",
       "type": "boolean"
