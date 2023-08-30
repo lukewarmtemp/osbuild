@@ -92,7 +92,9 @@ pipelines:
           rootfs:
             label: root
           container: true
-          container-source: /usr/share/containers/storage
+          container-source:
+            type: containers-storage
+            storage-path: /usr/share/containers/storage
           kernel_opts:
             - rw
             - console=tty0
