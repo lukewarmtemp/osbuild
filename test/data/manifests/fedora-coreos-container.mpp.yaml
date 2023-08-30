@@ -104,7 +104,7 @@ pipelines:
         options:
           deployment:
             osname: fedora-coreos
-            ref: containers-storage:[overlay@/run/osbuild/tree/usr/share/containers/storage+/run/containers/storage]localhost/fcos
+            ref: dir:/home/luyang/dev/test-builds/sources/org.osbuild.containers/tmp-download-852e1mik/container-archive/image
       - type: org.osbuild.grub2
         options:
           rootfs:
