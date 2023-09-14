@@ -168,7 +168,7 @@ def main(tree, options):
           
           extra_args = []
           if remote:
-              # extra_args.append(f'--imgref={imgref}')
+              extra_args.append(f'--imgref={imgref}')
               extra_args.append(f'--stateroot={osname}')
               extra_args.append(f'--write-commitid-to={tree}/tmp/commit.txt')
               # hard coded for now, but we can modify it later to take a parameter
