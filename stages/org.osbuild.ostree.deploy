@@ -174,7 +174,7 @@ def main(tree, options):
               # hard coded for now, but we can modify it later to take a parameter
               extra_args.append('--target-imgref=ostree-unverified-registry:quay.io/fedora/fedora-coreos:stable')
               extra_args.append('--ostree-remote=https://kojipkgs.fedoraproject.org/ostree/repo/')
-              extra_args.append('--no-imgref')
+              # extra_args.append('--no-imgref')
 
           ostree("container", "image", "deploy",
                 *extra_args,
