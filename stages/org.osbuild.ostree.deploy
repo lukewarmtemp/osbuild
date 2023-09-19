@@ -110,8 +110,8 @@ def ostree(*args, _input=None, **kwargs):
 
 def ostree_rs_ext(*args, _input=None, **kwargs):
     args = list(args) + [f'--{k}={v}' for k, v in kwargs.items()]
-    print("./home/luyang/dev/ostree-rs-ext/target/debug/ostree-ext-cli " + " ".join(args), file=sys.stderr)
-    subprocess.run(["./home/luyang/dev/ostree-rs-ext/target/debug/ostree-ext-cli"] + args,
+    print("/home/luyang/dev/ostree-rs-ext/target/debug/ostree-ext-cli " + " ".join(args), file=sys.stderr)
+    subprocess.run(["/home/luyang/dev/ostree-rs-ext/target/debug/ostree-ext-cli"] + args,
                    encoding="utf8",
                    stdout=sys.stderr,
                    input=_input,
