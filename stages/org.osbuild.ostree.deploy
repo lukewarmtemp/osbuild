@@ -189,6 +189,8 @@ def main(tree, options):
           #       sysroot=tree, 
           #       *kargs)
 
+          subprocess.run(["git", "clone", "https://github.com/lukewarmtemp/ostree-rs-ext.git"], check=True)
+
           ostree_rs_ext("container", "image", "deploy",
                 *extra_args,
                 sysroot=tree, 
