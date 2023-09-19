@@ -108,6 +108,14 @@ def ostree(*args, _input=None, **kwargs):
                    input=_input,
                    check=True)
 
+def ostree_rs_ext(*args, _input=None, **kwargs):
+    args = list(args) + [f'--{k}={v}' for k, v in kwargs.items()]
+    print("./home/luyang/dev/ostree-rs-ext/target/debug/ostree-ext-cli " + " ".join(args), file=sys.stderr)
+    subprocess.run(["./home/luyang/dev/ostree-rs-ext/target/debug/ostree-ext-cli"] + args,
+                   encoding="utf8",
+                   stdout=sys.stderr,
+                   input=_input,
+                   check=True)
 
 def make_fs_identifier(desc):
     for key in ["uuid", "label"]:
@@ -173,10 +181,15 @@ def main(tree, options):
               extra_args.append(f'--write-commitid-to={tree}/tmp/commit.txt')
               # hard coded for now, but we can modify it later to take a parameter
               extra_args.append('--target-imgref=ostree-remote-registry:quay.io/fedora/fedora-coreos:stable')
-              extra_args.append('--ostree-remote=https://kojipkgs.fedoraproject.org/ostree/repo/')
-              extra_args.append('--no-imgref')
+              # extra_args.append('--ostree-remote=https://kojipkgs.fedoraproject.org/ostree/repo/')
+              extra_args.append('--ostree-origin=fedora:fedora/x86_64/coreos/stable')
 
-          ostree("container", "image", "deploy",
+          # ostree("container", "image", "deploy",
+          #       *extra_args,
+          #       sysroot=tree, 
+          #       *kargs)
+
+          ostree_rs_ext("container", "image", "deploy",
                 *extra_args,
                 sysroot=tree, 
                 *kargs)
