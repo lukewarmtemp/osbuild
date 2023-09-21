@@ -28,10 +28,10 @@ mpp-define-image:
 sources:
   org.osbuild.skopeo:
     items:
-      sha256:14e9bedf3d4339d7ebeb1d0179d4e8bc11736021e4a9cfe68e728b0087e770f1:
+      sha256:022deff7c7249e75604396e507ba823d61dd3b7e94ad7fb3d8682c0cee1619ae:
         image:
           name: quay.io/fedora/fedora-coreos
-          digest: sha256:14e9bedf3d4339d7ebeb1d0179d4e8bc11736021e4a9cfe68e728b0087e770f1
+          digest: sha256:022deff7c7249e75604396e507ba823d61dd3b7e94ad7fb3d8682c0cee1619ae
           tls-verify: false
   # org.osbuild.ostree:
   #   items:
@@ -252,19 +252,19 @@ sources:
 #             number:
 #               mpp-format-int: '{image.layout[''boot''].index}'
 #             path: /grub2
-#   - name: qcow2
-#     build: name:build
-#     stages:
-#       - type: org.osbuild.qemu
-#         inputs:
-#           image:
-#             type: org.osbuild.files
-#             origin: org.osbuild.pipeline
-#             references:
-#               name:image:
-#                 file: disk.img
-#         options:
-#           filename: disk.qcow2
-#           format:
-#             type: qcow2
-#             compat: '1.1'
+  # - name: qcow2
+  #   build: name:build
+  #   stages:
+  #     - type: org.osbuild.qemu
+  #       inputs:
+  #         image:
+  #           type: org.osbuild.files
+  #           origin: org.osbuild.pipeline
+  #           references:
+  #             name:image:
+  #               file: disk.img
+  #       options:
+  #         filename: disk.qcow2
+  #         format:
+  #           type: qcow2
+  #           compat: '1.1'
