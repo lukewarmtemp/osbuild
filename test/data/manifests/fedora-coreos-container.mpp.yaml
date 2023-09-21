@@ -28,7 +28,7 @@ mpp-define-image:
 sources:
   org.osbuild.skopeo:
     items:
-      sha256:022deff7c7249e75604396e507ba823d61dd3b7e94ad7fb3d8682c0cee1619ae:
+      sha256:022deff7c7249e75604396e507ba823d61dd3b7e94ad7fb3d8682c0cee1619ab:
         image:
           name: quay.io/fedora/fedora-coreos
           digest: sha256:022deff7c7249e75604396e507ba823d61dd3b7e94ad7fb3d8682c0cee1619ae
