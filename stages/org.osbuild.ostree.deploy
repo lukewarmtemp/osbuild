@@ -21,14 +21,32 @@ the sysroot and the deployments. Additional kernel options can be passed via
 
 import os
 import sys
+import tempfile
 
 import osbuild.api
 from osbuild.util import ostree
 from osbuild.util.mnt import MountGuard
+from osbuild.util import containers
 
 CAPABILITIES = ["CAP_MAC_ADMIN"]
 
 SCHEMA_2 = """
+"inputs": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["images"],
+  "properties": {
+    "images": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "manifest-lists": {
+      "type": "object",
+      "description": "Optional manifest lists to merge into images. The metadata must specify an image ID to merge to.",
+      "additionalProperties": true
+    }
+  }
+},
 "options": {
   "additionalProperties": false,
   "required": ["osname", "ref"],
@@ -64,19 +82,6 @@ SCHEMA_2 = """
     "container": {
       "description": "Bool to indicate if the deployment is a container",
       "type": "boolean"
-    },
-    "container-storage": {
-      "type": "object",
-      "properties": {
-        "storage-path": {
-          "description": "Container storage location (default /var/lib/containers/storage).",
-          "type": "string"
-        },
-        "storage-driver": {
-          "description": "The container storage driver to use (default overlay).",
-          "type": "string"
-        }
-      }
     },
     "rootfs": {
       "description": "Identifier to locate the root file system",
@@ -117,17 +122,19 @@ def make_fs_identifier(desc):
     for key in ["uuid", "label"]:
         val = desc.get(key)
         if val:
-            return f"{key.upper()}={val}"
+          return f"{key.upper()}={val}"
     raise ValueError("unknown rootfs type")
 
 
-def main(tree, inputs, options):
+def main(inputs, tree, options):
     osname = options["osname"]
     rootfs = options.get("rootfs")
     mounts = options.get("mounts", [])
     kopts = options.get("kernel_opts", [])
     ref = options["ref"]
     remote = options.get("remote")
+    # change later when we implement ostree commit as input and find a way to distinguish from a
+    # container image input
     is_container = options.get("container")
 
     # If provided an input then do the pull into the tree
@@ -141,7 +148,7 @@ def main(tree, inputs, options):
 
     kargs = []
 
-    if (not is_container):
+    if len(inputs) == 0:
       if remote:
           ref = f"{remote}:{ref}"
 
@@ -152,9 +159,15 @@ def main(tree, inputs, options):
       for opt in kopts:
           kargs += [f"--karg-append={opt}"]
 
-    else:
-      for opt in kopts:
-          kargs += [f"--karg={opt}"]
+    elif len(inputs) == 1:
+      if is_container:
+        for opt in kopts:
+            kargs += [f"--karg={opt}"]
+      else:
+         pass
+    
+    elif len(inputs) > 1:
+       raise ValueError("only one input accepted")
 
     with MountGuard() as mounter:
         for mount in mounts:
@@ -162,47 +175,46 @@ def main(tree, inputs, options):
             path = os.path.join(tree, path)
             mounter.mount(path, path)
 
-        if (not is_container):
-            ostree.cli("admin", "deploy", ref,
-                       *kargs,
-                       sysroot=tree,
-                       os=osname)
+        if len(inputs) == 0:
+          ostree("admin", "deploy", ref,
+                 *kargs,
+                 sysroot=tree,
+                 os=osname)
         
-        else:
-            # create a temporary directory to store the ostree commit id after deploying the container image
-            os.mkdir(f"{tree}/tmp")
-            
-            # parse and construct the imgref of the container image pulled during the skopeo stage
-            destination = options["container-source"]
-            storage_root = destination.get("storage-path", "/var/lib/containers/storage")
-            storage_driver = destination.get("storage-driver", "overlay")
+        elif is_container:
+          images = containers.parse_containers_input(inputs)
+          for i in inputs["images"]:
+             print(i)
+          # create a temporary directory to store the ostree commit id after deploying the container image
+          os.mkdir(f"{tree}/tmp")
 
-            imgref = f"{remote}:containers-storage:[{storage_driver}@{tree}{storage_root}+/run/containers/storage]{ref}"
-            
-            extra_args = []
-            if remote:
+          for image in images.values():
+            with containers.container_source(image) as (image_name, image_source):
+              extra_args = []
+              imgref = f"{remote}:{image_source}"
+
+              if remote:
                 extra_args.append(f'--imgref={imgref}')
                 extra_args.append(f'--stateroot={osname}')
                 extra_args.append(f'--write-commitid-to={tree}/tmp/commit.txt')
+                # consider adding the target-imgref as a parameter
+                # when parsing the inputs as a source, only the following data is stored:
+                # inputs["images"] = [path, data]
+                  # inputs["images"]["path"] = /run/osbuild/inputs/images
+                  # inputs["images"]["data"] = {'archives': {'sha256:4b92d8b4188d4d4936bb749579936605b30231fcae82cb9c4b910d1b9a66f63f': {'format': 'dir', 'name': 'localhost/fcos'}}}
+                extra_args.append('--target-imgref=ostree-unverified-registry:quay.io/fedora/fedora-coreos:stable')
 
-            ostree.cli("container", "image", "deploy",
-                       *extra_args,
-                       sysroot=tree, 
-                       *kargs)
-            
-            f = open(f'{tree}/tmp/commit.txt', 'r')
-            commit = f.read()
-            target = f"{tree}/ostree/deploy/{osname}/deploy/{commit}.0.origin"
-            
-            end_of_line = '$d'
-            subprocess.run(["sed", "-i", f"{end_of_line}", target], check=True)
-            
-            remote_source = '$acontainer-image-reference=ostree-unverified-registry:quay.io/fedora/fedora-coreos:stable'
-            subprocess.run(["sed", "-i", f"{remote_source}", target], check=True)
-
+              ostree("container", "image", "deploy",
+                    *extra_args,
+                    sysroot=tree, 
+                    *kargs)
+          
+          else:
+            pass
+          
 if __name__ == '__main__':
     stage_args = osbuild.api.arguments()
-    r = main(stage_args["tree"],
-             stage_args["inputs"],
+    r = main(stage_args["inputs"],
+             stage_args["tree"],
              stage_args["options"])
     sys.exit(r)
