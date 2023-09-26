@@ -25,29 +25,22 @@ mpp-define-image:
         size: 8388608
         type: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
         uuid: CA7D7CCB-63ED-4C53-861C-1742536059CC
-# sources:
-#   org.osbuild.skopeo:
-#     items:
-#       sha256:14e9bedf3d4339d7ebeb1d0179d4e8bc11736021e4a9cfe68e728b0087e770f1:
-#         image:
-#           name: quay.io/fedora/fedora-coreos
-#           digest: sha256:0696dd182d2929d3697c0caa191489b88a47d3e1b3921b361961b2af5e1f7988
-#           tls-verify: false
-  # org.osbuild.ostree:
-  #   items:
-  #     d7a91db30c001cb4b354341533ecd71bc308ea4b28e70d30a981f2f7ea3e0b9f:
-  #       remote:
-  #         url: https://kojipkgs.fedoraproject.org/ostree/repo/
+sources:
+  org.osbuild.ostree:
+    items:
+      2c39e9b6a6b26226b626f4daf815d5307a96b2cd57463e94f7c618e312a61980:
+        remote:
+          url: https://kojipkgs.fedoraproject.org/ostree/repo/
 pipelines:
   - mpp-import-pipelines:
       path: fedora-vars.ipp.yaml
-  - mpp-import-pipeline:
-      path: fedora-build-v2.ipp.yaml
-      id: build
+  # - mpp-import-pipeline:
+  #     path: fedora-build-v2.ipp.yaml
+  #     id: build
     runner:
       mpp-format-string: org.osbuild.fedora{release}
   - name: image-tree
-    build: name:build
+    # build: name:build
     source-epoch: 1659397331
     stages:
       - type: org.osbuild.ostree.init-fs
@@ -66,7 +59,25 @@ pipelines:
           paths:
             - path: /boot/efi
               mode: 448
-      - type: org.osbuild.skopeo
+      - type: org.osbuild.ignition
+      - type: org.osbuild.ostree.deploy
+        options:
+          osname: fedora-coreos
+          ref: localhost/fcos
+          remote: ostree-unverified-image
+          mounts:
+            - /boot
+            - /boot/efi
+          rootfs:
+            label: root
+          kernel_opts:
+            - rw
+            - console=tty0
+            - console=ttyS0
+            - ignition.platform.id=qemu
+            - '$ignition_firstboot'
+          # maybe add target-img-ref parameter or input since mpp-resolve doesn't store the tag data
+          container: true
         inputs:
           images:
             type: org.osbuild.containers
@@ -76,35 +87,12 @@ pipelines:
                 - source: quay.io/fedora/fedora-coreos
                   tag: stable
                   name: localhost/fcos
-        options:
-          destination:
-            type: containers-storage
-            storage-path: /usr/share/containers/storage
-      - type: org.osbuild.ignition
-      - type: org.osbuild.ostree.deploy
-        options:
-          osname: fedora-coreos
-          # The following is where the previous skopeo stage stored the container image:
-          # containers-storage:[overlay@/run/osbuild/tree/usr/share/containers/storage+/run/containers/storage]localhost/fcos
-          ref: localhost/fcos
-          remote: ostree-unverified-image
-          mounts:
-            - /boot
-            - /boot/efi
-          rootfs:
-            label: root
-          # Boolean added to prevent the changes from affecting existing org.ostree.deploy stages
-          container: true
-          # Parameter to find the container image as defined above in the skopeo stage
-          container-source:
-            type: containers-storage
-            storage-path: /usr/share/containers/storage
-          kernel_opts:
-            - rw
-            - console=tty0
-            - console=ttyS0
-            - ignition.platform.id=qemu
-            - '$ignition_firstboot'
+          # commits:
+          #   type: org.osbuild.ostree
+          #   origin: org.osbuild.source
+          #   references:
+          #     "2c39e9b6a6b26226b626f4daf815d5307a96b2cd57463e94f7c618e312a61980":
+          #       ref: fedora/x86_64/coreos/stable
       - type: org.osbuild.ostree.selinux
         options:
           deployment:
@@ -125,7 +113,7 @@ pipelines:
           greenboot: false
           ignition: true
   - name: image
-    build: name:build
+    # build: name:build
     stages:
       - type: org.osbuild.truncate
         options:
@@ -253,7 +241,7 @@ pipelines:
               mpp-format-int: '{image.layout[''boot''].index}'
             path: /grub2
   - name: qcow2
-    build: name:build
+    # build: name:build
     stages:
       - type: org.osbuild.qemu
         inputs:
