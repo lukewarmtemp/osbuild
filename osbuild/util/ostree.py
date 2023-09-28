@@ -153,6 +153,26 @@ def show(repo: PathLike, checksum: str) -> str:
     return msg
 
 
+def cli(*args, _input=None, **kwargs):
+    """Thin wrapper for running the ostree CLI"""
+    args = list(args) + [f'--{k}={v}' for k, v in kwargs.items()]
+    print("ostree " + " ".join(args), file=sys.stderr)
+    subprocess.run(["ostree"] + args,
+                   encoding="utf8",
+                   stdout=sys.stderr,
+                   input=_input,
+                   check=True)
+
+
+def parse_ostree_input(inputs):
+    """Parse commits input and return the repo path and refs specified"""
+    commits = inputs["commits"]
+    data = commits["data"]
+    refs = data["refs"]
+    assert refs, "Need at least one commit"
+    return commits["path"], data["refs"]
+
+
 def deployment_path(root: PathLike, osname: str, ref: str, serial: int):
     """Return the path to a deployment given the parameters"""
 
