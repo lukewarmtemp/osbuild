@@ -119,7 +119,7 @@ def rev_parse(repo: PathLike, ref: str) -> str:
     if isinstance(repo, bytes):
         repo = repo.decode("utf8")
 
-    r = subprocess.run(["ostree", "rev-parse", ref, f"--repo={repo}"],
+    r = subprocess.run(["ostree", "rev-parse", ref, f"--repo={repo}", "2>", "/dev/null"],
                        encoding="utf8",
                        stdout=subprocess.PIPE,
                        stderr=subprocess.STDOUT,
