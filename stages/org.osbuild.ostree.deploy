@@ -32,7 +32,7 @@ CAPABILITIES = ["CAP_MAC_ADMIN"]
 SCHEMA_2 = """
 "options": {
   "additionalProperties": false,
-  "required": ["osname", "ref"],
+  "required": ["osname"],
   "properties": {
     "mounts": {
       "description": "Mount points of the final file system",
@@ -90,6 +90,14 @@ SCHEMA_2 = """
     "required": ["commits"]
   }, {
     "required": ["images"]
+  }, {
+      "not": { 
+        "anyOf": [{
+            "required": ["commits"]
+          }, {
+            "required": ["images"]
+          }] 
+      }
   }],
   "properties": {
     "commits": {
@@ -119,92 +127,88 @@ def make_fs_identifier(desc):
 
 
 def main(tree, inputs, options):
+    # distingush between ostree commit or container image input
+    input_type = None
+    for key in inputs:
+        input_type = key
+
     osname = options["osname"]
     rootfs = options.get("rootfs")
     mounts = options.get("mounts", [])
     kopts = options.get("kernel_opts", [])
-    ref = options["ref"]
+    ref = options.get("ref", "")
     remote = options.get("remote")
 
-    # distingush between ostree commit or container image input
-    input_type = ''
-    for key in inputs:
-       input_type = key
+    # return error if ref is empty when there are no inputs or the input type is an ostree commit
+    if not ref and (not input_type or input_type == "commits"):
+        raise ValueError("ref missing")
+
+    if remote:
+        ref = f"{remote}:{ref}"
 
     kargs = []
 
-    if remote:
-      ref = f"{remote}:{ref}"
-
     if len(inputs) == 0:
-    
-      if rootfs:
-          rootfs_id = make_fs_identifier(rootfs)
-          kargs += [f"--karg=root={rootfs_id}"]
+        if rootfs:
+            rootfs_id = make_fs_identifier(rootfs)
+            kargs += [f"--karg=root={rootfs_id}"]
 
-      for opt in kopts:
-          kargs += [f"--karg-append={opt}"]
+        for opt in kopts:
+            kargs += [f"--karg-append={opt}"]
 
     elif len(inputs) == 1:
 
         if input_type == 'images':
-          for opt in kopts:
-            kargs += [f"--karg={opt}"]
-
+            for opt in kopts:
+                kargs += [f"--karg={opt}"]
+        
         elif input_type == 'commits':
-          print('enter!!')
-          source_repo, commits = ostree.parse_ostree_input(inputs)
-          target_repo = f"{tree}/ostree/repo"
-          for commit, data in commits.items():
-              loopref = data.get("ref", commit)
-              ostree.pull_local(source_repo, target_repo, remote, loopref)
+            for opt in kopts:
+                kargs += [f"--karg-append={opt}"]
+
+            source_repo, commits = ostree.parse_ostree_input(inputs)
+            target_repo = f"{tree}/ostree/repo"
+            for commit, data in commits.items():
+                loopref = data.get("ref", commit)
+                ostree.pull_local(source_repo, target_repo, remote, loopref)
     
     # schema should catch the case in which there are more than one input but this adds a second layer of security
     elif len(inputs) > 1:
-       raise ValueError("only one input accepted")
+        raise ValueError("only one input accepted")
 
     with MountGuard() as mounter:
-      for mount in mounts:
-          path = mount.lstrip("/")
-          path = os.path.join(tree, path)
-          mounter.mount(path, path)
+        for mount in mounts:
+            path = mount.lstrip("/")
+            path = os.path.join(tree, path)
+            mounter.mount(path, path)
           
-      if len(inputs) == 0:
-        ostree.cli("admin", "deploy", ref,
-                *kargs,
-                sysroot=tree,
-                os=osname)
-      
-      elif input_type == 'images':
-        images = containers.parse_containers_input(inputs)
-        for i in inputs["images"]:
-            print(i)
+        if len(inputs) == 0:
+            ostree.cli("admin", "deploy", ref,
+                        *kargs,
+                        sysroot=tree,
+                        os=osname)
 
-        for image in images.values():
-          with containers.container_source(image) as (image_name, image_source):
-            extra_args = []
-            imgref = f"{remote}:{image_source}"
+        elif input_type == 'images':
+            images = containers.parse_containers_input(inputs)
+            for image in images.values():
+                with containers.container_source(image) as (image_name, image_source):
+                    extra_args = []
+                    imgref = f"ostree-unverified-image:{image_source}"
 
-            if remote:
-              extra_args.append(f'--imgref={imgref}')
-              extra_args.append(f'--stateroot={osname}')
-              # consider adding the target-imgref as a parameter
-              # when parsing the inputs as a source, only the following data is stored:
-              # inputs["images"] = [path, data]
-                # inputs["images"]["path"] = /run/osbuild/inputs/images
-                # inputs["images"]["data"] = {'archives': {'sha256:4b92d8b4188d4d4936bb749579936605b30231fcae82cb9c4b910d1b9a66f63f': {'format': 'dir', 'name': 'localhost/fcos'}}}
-              extra_args.append('--target-imgref=ostree-unverified-registry:quay.io/fedora/fedora-coreos:stable')
+                    extra_args.append(f'--imgref={imgref}')
+                    extra_args.append(f'--stateroot={osname}')
+                    extra_args.append(f'--target-imgref=ostree-unverified-registry:{image_name}')
 
-            ostree.cli("container", "image", "deploy",
-                  *extra_args,
-                  sysroot=tree, 
-                  *kargs)
-        
-      elif input_type == 'commits':
-        ostree.cli("admin", "deploy", ref,
-                    *kargs,
-                    sysroot=tree,
-                    os=osname)
+                    ostree.cli("container", "image", "deploy",
+                                *extra_args,
+                                sysroot=tree, 
+                                *kargs)
+            
+        elif input_type == 'commits':
+            ostree.cli("admin", "deploy", ref,
+                        *kargs,
+                        sysroot=tree,
+                        os=osname)
           
 if __name__ == '__main__':
     stage_args = osbuild.api.arguments()
