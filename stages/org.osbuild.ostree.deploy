@@ -226,7 +226,7 @@ if __name__ == '__main__':
     r = subprocess.run(["ls", "/run/osbuild/api"], check=True)
     r = subprocess.run(["cat", "/run/osbuild/api/arguments"], check=True)
     r = subprocess.run(["tree", "/run/osbuild"], check=True)
-    r = subprocess.run(["cat", "/run/osbuild/inputs/images/sha256:4b92d8b4188d4d4936bb749579936605b30231fcae82cb9c4b910d1b9a66f63f/mainfest.json"], check=True)
+    r = subprocess.run(["cat", "/run/osbuild/inputs/images/sha256:4b92d8b4188d4d4936bb749579936605b30231fcae82cb9c4b910d1b9a66f63f/manifest.json"], check=True)
     r = main(stage_args["tree"],
              stage_args["inputs"],
              stage_args["options"])
