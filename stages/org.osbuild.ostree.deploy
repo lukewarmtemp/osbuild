@@ -223,7 +223,7 @@ def main(tree, inputs, options):
           
 if __name__ == '__main__':
     stage_args = osbuild.api.arguments()
-    r = subprocess.run(["ls", "/run/osbuild/api", check=True])
+    r = subprocess.run(["ls", "/run/osbuild/api"], check=True)
     r = main(stage_args["tree"],
              stage_args["inputs"],
              stage_args["options"])
