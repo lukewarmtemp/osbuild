@@ -132,7 +132,7 @@ def main(tree, inputs, options):
     ref = options["ref"]
     remote = options.get("remote")
 
-    r = subprocess.run(["podman", "image", "list"], check=True)
+    r = subprocess.run(["docker", "image", "list"], check=True)
     print(r)
     
     # distingush between ostree commit or container image input
