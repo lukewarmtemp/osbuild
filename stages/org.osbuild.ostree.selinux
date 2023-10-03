@@ -50,11 +50,7 @@ def main(tree, options):
 
     # this created a state root at `osname`
     stateroot = f"{tree}/ostree/deploy/{osname}"
-    r = subprocess.run(["ls", "/run/osbuild/tree/ostree/deploy/fedora-coreos/deploy/"], check=True)
-    print(r)
     root = ostree.deployment_path(tree, osname, ref, serial)
-    
-    print(root)
 
     # deploying a tree creates new files that need to be properly
     # labeled for SELinux. In theory, ostree will take care of
