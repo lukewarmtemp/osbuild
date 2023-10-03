@@ -131,9 +131,6 @@ def main(tree, inputs, options):
     kopts = options.get("kernel_opts", [])
     ref = options["ref"]
     remote = options.get("remote")
-
-    r = subprocess.run(["docker", "image", "list"], check=True)
-    print(r)
     
     # distingush between ostree commit or container image input
     input_type = ''
@@ -194,6 +191,9 @@ def main(tree, inputs, options):
             extra_args = []
             imgref = f"{remote}:{image_source}"
             print(imgref)
+
+            r = subprocess.run(["skopeo", "inspect", f"${imgref}"], check=True)
+            print(r)
 
             if remote:
               extra_args.append(f'--imgref={imgref}')
