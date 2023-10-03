@@ -198,8 +198,8 @@ def main(tree, inputs, options):
 
             # r = subprocess.run(["skopeo", "inspect", f"{image_source}"], check=True)
             # print(r)
-            r = subprocess.run(["grep", "-r", "fedora-coreos", "/tmp"], check=True)
-            print(r)
+            # r = subprocess.run(["grep", "-r", "fedora-coreos", "/tmp"], check=True)
+            # print(r)
               
             if remote:
               extra_args.append(f'--imgref={imgref}')
