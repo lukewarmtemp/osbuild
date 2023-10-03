@@ -111,8 +111,8 @@ pipelines:
         options:
           deployment:
             osname: fedora-coreos
-            ref: localhost/fcos
-          container: true
+            ref: ostree/1/1/0
+          # container: true
       - type: org.osbuild.grub2
         options:
           rootfs:
