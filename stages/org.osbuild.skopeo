@@ -61,6 +61,8 @@ SCHEMA_2 = r"""
 def main(inputs, output, options):
     images = containers.parse_containers_input(inputs)
     print(inputs)
+    print(output)
+    print(options)
 
     destination = options["destination"]
     # The destination type is always containers-storage atm, so ignore "type"
