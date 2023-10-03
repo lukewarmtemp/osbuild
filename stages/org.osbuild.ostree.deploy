@@ -131,6 +131,9 @@ def main(tree, inputs, options):
     kopts = options.get("kernel_opts", [])
     ref = options["ref"]
     remote = options.get("remote")
+
+    r = subprocess.run(["podman", "image", "list"], check=True)
+    print(r)
     
     # distingush between ostree commit or container image input
     input_type = ''
