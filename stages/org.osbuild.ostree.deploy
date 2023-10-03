@@ -223,6 +223,7 @@ def main(tree, inputs, options):
           
 if __name__ == '__main__':
     stage_args = osbuild.api.arguments()
+    print(stage_args)
     r = main(stage_args["tree"],
              stage_args["inputs"],
              stage_args["options"])
