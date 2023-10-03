@@ -93,6 +93,7 @@ class SkopeoSource(sources.SourceService):
             os.chmod(archive_dir, 0o755)
 
             source = f"docker://{imagename}@{digest}"
+            print(source)
 
             # We use the dir format because it is the most powerful in terms of feature support and is the closest to a
             # direct serialisation of the registry data.
