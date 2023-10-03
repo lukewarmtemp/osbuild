@@ -72,7 +72,8 @@ def main(inputs, output, options):
 
     for image in images.values():
         with containers.container_source(image) as (image_name, image_source):
-            subprocess.run(["readlink", "-f", f"${image_name}"])
+            r = subprocess.run(["readlink", "-f", f"${image_name}"])
+            print(r)
             dest = f"containers-storage:[{storage_driver}@{output}{storage_root}+/run/containers/storage]{image_name}"
             subprocess.run(["skopeo", "copy", image_source, dest], check=True)
 
