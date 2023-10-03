@@ -131,6 +131,10 @@ def main(tree, inputs, options):
     kopts = options.get("kernel_opts", [])
     ref = options["ref"]
     remote = options.get("remote")
+
+    print(inputs)
+    print(tree)
+    print(options)
     
     # distingush between ostree commit or container image input
     input_type = ''
