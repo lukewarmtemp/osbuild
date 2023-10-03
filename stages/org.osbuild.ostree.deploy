@@ -196,7 +196,7 @@ def main(tree, inputs, options):
             imgref = f"{remote}:{image_source}"
             print(imgref)
 
-            r = subprocess.run(["skopeo", "inspect", f"{imgref}"], check=True)
+            r = subprocess.run(["skopeo", "inspect", f"{image_source}"], check=True)
             print(r)
 
             if remote:
