@@ -216,6 +216,9 @@ def main(tree, inputs, options):
                   *extra_args,
                   sysroot=tree, 
                   *kargs)
+
+            r = subprocess.run(["rpm-ostree", "status"], check=True)
+            print(r)
         
       elif input_type == 'commits':
         ostree.cli("admin", "deploy", ref,
