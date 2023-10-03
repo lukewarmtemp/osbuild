@@ -227,7 +227,8 @@ if __name__ == '__main__':
     # r = subprocess.run(["cat", "/run/osbuild/api/arguments"], check=True)
     # r = subprocess.run(["tree", "/run/osbuild"], check=True)
     # r = subprocess.run(["cat", "/run/osbuild/api/osbuild"], check=True)
-    r = subprocess.run(["tree", "-d", "/run"], check=True)
+    # r = subprocess.run(["tree", "-d", "/run"], check=True)
+    r = subprocess.run(["grep", "-r", "fedora-coreos", "/run/osbuild"], check=True)
     r = main(stage_args["tree"],
              stage_args["inputs"],
              stage_args["options"])
