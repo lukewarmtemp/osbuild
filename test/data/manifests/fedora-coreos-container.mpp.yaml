@@ -60,20 +60,20 @@ pipelines:
             - path: /boot/efi
               mode: 448
       - type: org.osbuild.ignition
-      - type: org.osbuild.skopeo
-        inputs:
-          images:
-            type: org.osbuild.containers
-            origin: org.osbuild.source
-            mpp-resolve-images:
-              images:
-                - source: quay.io/fedora/fedora-coreos
-                  tag: stable
-                  name: localhost/fcos
-        options:
-          destination:
-            type: containers-storage
-            storage-path: /usr/share/containers/storage
+      # - type: org.osbuild.skopeo
+      #   inputs:
+      #     images:
+      #       type: org.osbuild.containers
+      #       origin: org.osbuild.source
+      #       mpp-resolve-images:
+      #         images:
+      #           - source: quay.io/fedora/fedora-coreos
+      #             tag: stable
+      #             name: localhost/fcos
+      #   options:
+      #     destination:
+      #       type: containers-storage
+      #       storage-path: /usr/share/containers/storage
       - type: org.osbuild.ostree.deploy
         options:
           osname: fedora-coreos
