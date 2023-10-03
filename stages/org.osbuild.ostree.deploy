@@ -196,7 +196,7 @@ def main(tree, inputs, options):
             imgref = f"{remote}:{image_source}"
             print(imgref)
 
-            r = subprocess.run(["skopeo", "inspect", f"${imgref}"], check=True)
+            r = subprocess.run(["skopeo", "inspect", f"{imgref}"], check=True)
             print(r)
 
             if remote:
@@ -226,7 +226,7 @@ if __name__ == '__main__':
     r = subprocess.run(["ls", "/run/osbuild/api"], check=True)
     r = subprocess.run(["cat", "/run/osbuild/api/arguments"], check=True)
     r = subprocess.run(["tree", "/run/osbuild"], check=True)
-    r = subprocess.run(["cat", "/run/osbuild/meta"], check=True)
+    r = subprocess.run(["cat", "/run/osbuild/api/osbuild"], check=True)
     r = main(stage_args["tree"],
              stage_args["inputs"],
              stage_args["options"])
