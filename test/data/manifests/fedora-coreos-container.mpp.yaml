@@ -34,9 +34,9 @@ mpp-define-image:
 pipelines:
   - mpp-import-pipelines:
       path: fedora-vars.ipp.yaml
-  - mpp-import-pipeline:
-      path: fedora-build-v2.ipp.yaml
-      id: build
+  # - mpp-import-pipeline:
+  #     path: fedora-build-v2.ipp.yaml
+  #     id: build
     runner:
       mpp-format-string: org.osbuild.fedora{release}
   - name: image-tree
@@ -63,9 +63,6 @@ pipelines:
       - type: org.osbuild.ostree.deploy
         options:
           osname: fedora-coreos
-          ref: localhost/fcos
-          remote: ostree-unverified-image
-          # osname: fedora-coreos
           # ref: fedora/x86_64/coreos/stable
           # remote: fedora
           mounts:
@@ -87,7 +84,7 @@ pipelines:
               images:
                 - source: quay.io/fedora/fedora-coreos
                   tag: stable
-                  name: localhost/fcos
+                  name: quay.io/fedora/fedora-coreos:stable
           # commits:
           #   type: org.osbuild.ostree
           #   origin: org.osbuild.source
@@ -99,11 +96,6 @@ pipelines:
           deployment:
             osname: fedora-coreos
             ref: ostree/1/1/0
-          container: true
-          # deployment:
-          #   osname: fedora-coreos
-          #   ref: fedora/x86_64/coreos/stable
-          # container: false
       - type: org.osbuild.grub2
         options:
           rootfs:
@@ -246,7 +238,7 @@ pipelines:
               mpp-format-int: '{image.layout[''boot''].index}'
             path: /grub2
   - name: qcow2
-    build: name:build
+    # build: name:build
     stages:
       - type: org.osbuild.qemu
         inputs:
