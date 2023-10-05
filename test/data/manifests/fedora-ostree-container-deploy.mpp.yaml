@@ -43,4 +43,4 @@ pipelines:
               type: org.osbuild.containers
               origin: org.osbuild.pipeline
               references:
-                name:container: ostree-container.tar
+                name:container: {}
