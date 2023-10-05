@@ -175,4 +175,167 @@ pipelines:
             references:
               sha256:38ad96f95c4a912d3be108650b1637afa38eee6596fd35ff340cea40bf64dbcd:
                 name: fedora-container.tar
+      - type: org.osbuild.ostree.selinux
+        options:
+          deployment:
+            osname: fedora-coreos
+            ref: ostree/1/1/0
+      - type: org.osbuild.grub2
+        options:
+          rootfs:
+            label: root
+          bootfs:
+            label: boot
+          uefi:
+            vendor: fedora
+            install: true
+          legacy: i386-pc
+          write_defaults: false
+          greenboot: false
+          ignition: true
+  - name: image
+    # build: name:build
+    stages:
+      - type: org.osbuild.truncate
+        options:
+          filename: disk.img
+          size:
+            mpp-format-string: '{image.size}'
+      - type: org.osbuild.sfdisk
+        devices:
+          device:
+            type: org.osbuild.loopback
+            options:
+              filename: disk.img
+        options:
+          mpp-format-json: '{image.layout}'
+      - type: org.osbuild.mkfs.fat
+        devices:
+          device:
+            type: org.osbuild.loopback
+            options:
+              filename: disk.img
+              start:
+                mpp-format-int: '{image.layout[''EFI-SYSTEM''].start}'
+              size:
+                mpp-format-int: '{image.layout[''EFI-SYSTEM''].size}'
+              lock: true
+        options:
+          label: EFI-SYSTEM
+          volid: 7B7795E7
+      - type: org.osbuild.mkfs.ext4
+        devices:
+          device:
+            type: org.osbuild.loopback
+            options:
+              filename: disk.img
+              start:
+                mpp-format-int: '{image.layout[''boot''].start}'
+              size:
+                mpp-format-int: '{image.layout[''boot''].size}'
+              lock: true
+        options:
+          uuid: 96d15588-3596-4b3c-adca-a2ff7279ea63
+          label: boot
+      - type: org.osbuild.mkfs.xfs
+        devices:
+          device:
+            type: org.osbuild.loopback
+            options:
+              filename: disk.img
+              start:
+                mpp-format-int: '{image.layout[''root''].start}'
+              size:
+                mpp-format-int: '{image.layout[''root''].size}'
+              lock: true
+        options:
+          uuid: 910678ff-f77e-4a7d-8d53-86f2ac47a823
+          label: root
+      - type: org.osbuild.copy
+        inputs:
+          tree:
+            type: org.osbuild.tree
+            origin: org.osbuild.pipeline
+            references:
+              - name:image-tree
+        options:
+          paths:
+            # skopeo creates a /usr folder in sysroot
+            # only copy the boot and ostree folders
+            - from: input://tree/boot
+              to: mount://root/
+            - from: input://tree/ostree
+              to: mount://root/
+        devices:
+          efi:
+            type: org.osbuild.loopback
+            options:
+              filename: disk.img
+              start:
+                mpp-format-int: '{image.layout[''EFI-SYSTEM''].start}'
+              size:
+                mpp-format-int: '{image.layout[''EFI-SYSTEM''].size}'
+          boot:
+            type: org.osbuild.loopback
+            options:
+              filename: disk.img
+              start:
+                mpp-format-int: '{image.layout[''boot''].start}'
+              size:
+                mpp-format-int: '{image.layout[''boot''].size}'
+          root:
+            type: org.osbuild.loopback
+            options:
+              filename: disk.img
+              start:
+                mpp-format-int: '{image.layout[''root''].start}'
+              size:
+                mpp-format-int: '{image.layout[''root''].size}'
+        mounts:
+          - name: root
+            type: org.osbuild.xfs
+            source: root
+            target: /
+          - name: boot
+            type: org.osbuild.ext4
+            source: boot
+            target: /boot
+          - name: efi
+            type: org.osbuild.fat
+            source: efi
+            target: /boot/efi
+      - type: org.osbuild.grub2.inst
+        options:
+          platform: i386-pc
+          filename: disk.img
+          location:
+            mpp-format-int: '{image.layout[''BIOS-BOOT''].start}'
+          core:
+            type: mkimage
+            partlabel: gpt
+            filesystem: ext4
+          prefix:
+            type: partition
+            partlabel:
+              mpp-format-string: '{image.layout.label}'
+            number:
+              mpp-format-int: '{image.layout[''boot''].index}'
+            path: /grub2
+  - name: qcow2
+    # build: name:build
+    stages:
+      - type: org.osbuild.qemu
+        inputs:
+          image:
+            type: org.osbuild.files
+            origin: org.osbuild.pipeline
+            references:
+              name:image:
+                file: disk.img
+        options:
+          filename: disk.qcow2
+          format:
+            type: qcow2
+            compat: '1.1'
+
               
