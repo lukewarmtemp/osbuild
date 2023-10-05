@@ -25,22 +25,22 @@ pipelines:
             references:
               name:ostree-commit: {}
       - type: org.osbuild.ostree.deploy
-          options:
-            osname: fedora-coreos
-            mounts:
-              - /boot
-              - /boot/efi
-            rootfs:
-              label: root
-            kernel_opts:
-              - rw
-              - console=tty0
-              - console=ttyS0
-              - ignition.platform.id=qemu
-              - '$ignition_firstboot'
-          inputs:
-            images:
-              type: org.osbuild.containers
-              origin: org.osbuild.pipeline
-              references:
-                name:container: {}
+        options:
+          osname: fedora-coreos
+          mounts:
+            - /boot
+            - /boot/efi
+          rootfs:
+            label: root
+          kernel_opts:
+            - rw
+            - console=tty0
+            - console=ttyS0
+            - ignition.platform.id=qemu
+            - '$ignition_firstboot'
+        inputs:
+          images:
+            type: org.osbuild.containers
+            origin: org.osbuild.pipeline
+            references:
+              name:container: {}
