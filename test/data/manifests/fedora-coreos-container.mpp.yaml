@@ -25,12 +25,12 @@ mpp-define-image:
         size: 8388608
         type: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
         uuid: CA7D7CCB-63ED-4C53-861C-1742536059CC
-# sources:
-#   org.osbuild.ostree:
-#     items:
-#       2c39e9b6a6b26226b626f4daf815d5307a96b2cd57463e94f7c618e312a61980:
-#         remote:
-#           url: https://kojipkgs.fedoraproject.org/ostree/repo/
+sources:
+  org.osbuild.ostree:
+    items:
+      2c39e9b6a6b26226b626f4daf815d5307a96b2cd57463e94f7c618e312a61980:
+        remote:
+          url: https://kojipkgs.fedoraproject.org/ostree/repo/
 pipelines:
   - mpp-import-pipelines:
       path: fedora-vars.ipp.yaml
@@ -78,20 +78,20 @@ pipelines:
             - '$ignition_firstboot'
             - 'enforcing=0'
         inputs:
-          images:
-            type: org.osbuild.containers
-            origin: org.osbuild.source
-            mpp-resolve-images:
-              images:
-                - source: quay.io/fedora/fedora-coreos
-                  tag: stable
-                  name: quay.io/fedora/fedora-coreos:stable
-          # commits:
-          #   type: org.osbuild.ostree
+          # images:
+          #   type: org.osbuild.containers
           #   origin: org.osbuild.source
-          #   references:
-          #     "2c39e9b6a6b26226b626f4daf815d5307a96b2cd57463e94f7c618e312a61980":
-          #       ref: fedora/x86_64/coreos/stable
+          #   mpp-resolve-images:
+          #     images:
+          #       - source: quay.io/fedora/fedora-coreos
+          #         tag: stable
+          #         name: quay.io/fedora/fedora-coreos:stable
+          commits:
+            type: org.osbuild.ostree
+            origin: org.osbuild.source
+            references:
+              "2c39e9b6a6b26226b626f4daf815d5307a96b2cd57463e94f7c618e312a61980":
+                ref: fedora/x86_64/coreos/stable
       - type: org.osbuild.ostree.selinux
         options:
           deployment:
