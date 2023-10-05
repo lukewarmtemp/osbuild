@@ -105,6 +105,23 @@ pipelines:
               - daemon off;
             ExposedPorts:
               - '80'
+      - type: org.osbuild.ostree.init-fs
+      - type: org.osbuild.ostree.os-init
+        options:
+          osname: fedora-coreos
+      - type: org.osbuild.ostree.config
+        options:
+          repo: /ostree/repo
+          config:
+            sysroot:
+              readonly: false
+              bootloader: none
+      - type: org.osbuild.mkdir
+        options:
+          paths:
+            - path: /boot/efi
+              mode: 448
+      - type: org.osbuild.ignition
       - type: org.osbuild.ostree.deploy
         options:
           osname: fedora-coreos
