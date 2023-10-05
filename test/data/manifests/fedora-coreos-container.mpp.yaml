@@ -64,7 +64,7 @@ pipelines:
         options:
           osname: fedora-coreos
           # ref: fedora/x86_64/coreos/stable
-          remote: fedora
+          # remote: fedora
           mounts:
             - /boot
             - /boot/efi
@@ -77,7 +77,7 @@ pipelines:
             - ignition.platform.id=qemu
             - '$ignition_firstboot'
             - 'enforcing=0'
-        inputs:
+        # inputs:
           # images:
           #   type: org.osbuild.containers
           #   origin: org.osbuild.source
@@ -86,12 +86,12 @@ pipelines:
           #       - source: quay.io/fedora/fedora-coreos
           #         tag: stable
           #         name: quay.io/fedora/fedora-coreos:stable
-          commits:
-            type: org.osbuild.ostree
-            origin: org.osbuild.source
-            references:
-              "2c39e9b6a6b26226b626f4daf815d5307a96b2cd57463e94f7c618e312a61980":
-                ref: fedora/x86_64/coreos/stable
+          # commits:
+          #   type: org.osbuild.ostree
+          #   origin: org.osbuild.source
+          #   references:
+          #     "2c39e9b6a6b26226b626f4daf815d5307a96b2cd57463e94f7c618e312a61980":
+          #       ref: fedora/x86_64/coreos/stable
       - type: org.osbuild.ostree.selinux
         options:
           deployment:
