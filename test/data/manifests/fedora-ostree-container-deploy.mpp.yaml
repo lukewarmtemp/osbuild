@@ -85,26 +85,18 @@ pipelines:
       - type: org.osbuild.locale
         options:
           language: en_US.UTF-8
-  - name: container
-    # build: name:build
+ - name: container
+    build: name:build
     stages:
-      - type: org.osbuild.oci-archive
+      - type: org.osbuild.ostree.encapsulate
+        options:
+          filename: ostree-container.tar
         inputs:
-          base:
-            type: org.osbuild.tree
+          commit:
+            type: org.osbuild.ostree
             origin: org.osbuild.pipeline
             references:
               - name:image-tree
-        options:
-          architecture: amd64
-          filename: fedora-container.tar
-          config:
-            Cmd:
-              - nginx
-              - -g
-              - daemon off;
-            ExposedPorts:
-              - '80'
       - type: org.osbuild.ostree.init-fs
       - type: org.osbuild.ostree.os-init
         options:
