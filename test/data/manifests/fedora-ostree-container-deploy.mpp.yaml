@@ -143,11 +143,11 @@ pipelines:
             references:
               sha256:38ad96f95c4a912d3be108650b1637afa38eee6596fd35ff340cea40bf64dbcd:
                 name: fedora-container.tar
-      - type: org.osbuild.ostree.selinux
-        options:
-          deployment:
-            osname: fedora-coreos
-            ref: ostree/1/1/0
+      # - type: org.osbuild.ostree.selinux
+      #   options:
+      #     deployment:
+      #       osname: fedora-coreos
+      #       ref: ostree/1/1/0
       - type: org.osbuild.grub2
         options:
           rootfs:
