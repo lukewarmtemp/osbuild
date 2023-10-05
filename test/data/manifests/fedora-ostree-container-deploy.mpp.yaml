@@ -86,7 +86,7 @@ pipelines:
         options:
           language: en_US.UTF-8
   - name: container
-    build: name:build
+    # build: name:build
     stages:
       - type: org.osbuild.ostree.encapsulate
         options:
@@ -96,7 +96,7 @@ pipelines:
             type: org.osbuild.ostree
             origin: org.osbuild.pipeline
             references:
-              name:image-tree: {}
+            - name:image-tree
       - type: org.osbuild.ostree.init-fs
       - type: org.osbuild.ostree.os-init
         options:
