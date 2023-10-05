@@ -7,23 +7,153 @@ pipelines:
       id: build
     runner:
       mpp-format-string: org.osbuild.fedora{release}
-  - mpp-import-pipelines:
-      path: fedora-ostree-commit.mpp.yaml
-      ids:
-        - ostree-tree
-        - ostree-commit
-  - name: container
+  - name: ostree-tree
     build: name:build
     stages:
-      - type: org.osbuild.ostree.encapsulate
+      - type: org.osbuild.rpm
         options:
-          filename: ostree-container.tar
+          gpgkeys:
+            mpp-eval: gpgkeys
         inputs:
-          commit:
+          packages:
+            type: org.osbuild.files
+            origin: org.osbuild.source
+            mpp-depsolve:
+              architecture: $arch
+              module-platform-id: $module_platform_id
+              repos:
+                mpp-eval: repos
+              packages:
+                - '@cloud-server-environment'
+                - chrony
+                - dracut-config-generic
+                - grub2-pc
+                - kernel-core
+                - langpacks-en
+                - nss-altfiles
+                - ostree
+                - polkit
+                - rpm-ostree
+                - selinux-policy-targeted
+                - systemd-udev
+              excludes:
+                - dracut-config-rescue
+      - type: org.osbuild.locale
+        options:
+          language: en_US.UTF-8
+      - type: org.osbuild.selinux
+        options:
+          file_contexts: etc/selinux/targeted/contexts/files/file_contexts
+      - type: org.osbuild.ostree.preptree
+        options:
+          etc_group_members:
+            - wheel
+            - docker
+  - name: ostree-commit
+    build: name:build
+    stages:
+      - type: org.osbuild.ostree.init
+        options:
+          path: /repo
+      - type: org.osbuild.ostree.commit
+        inputs:
+          tree:
+            type: org.osbuild.tree
+            origin: org.osbuild.pipeline
+            references:
+              - name:ostree-tree
+        options:
+          ref: fedora/x86_64/osbuild
+          os_version: '34'
+  - name: container-tree
+    build: name:build
+    stages:
+      - type: org.osbuild.rpm
+        inputs:
+          packages:
+            type: org.osbuild.files
+            origin: org.osbuild.source
+            mpp-depsolve:
+              architecture: $arch
+              module-platform-id: $module_platform_id
+              repos:
+                mpp-eval: repos
+              packages:
+                - fedora-release-container
+                - bash
+                - coreutils
+                - glibc-minimal-langpack
+                - rpm
+                - shadow-utils
+                - sssd-client
+                - util-linux
+                - microdnf
+                - httpd
+              excludes:
+                - kernel
+                - dosfstools
+                - e2fsprogs
+                - fuse-libs
+                - gnupg2-smime
+                - libss
+                - pinentry
+                - shared-mime-info
+                - trousers
+                - xkeyboard-config
+                - grubby
+        options:
+          gpgkeys:
+            mpp-eval: gpgkeys
+          exclude:
+            docs: true
+      - type: org.osbuild.locale
+        options:
+          language: en_US.UTF-8
+  - name: container-ostree
+    build: name:build
+    stages:
+      - type: org.osbuild.ostree.init
+        options:
+          path: /var/www/html/repo
+      - type: org.osbuild.ostree.pull
+        options:
+          repo: /var/www/html/repo
+        inputs:
+          commits:
             type: org.osbuild.ostree
             origin: org.osbuild.pipeline
             references:
-              name:ostree-commit: {}
+              name:ostree-commit:
+                ref: fedora/x86_64/osbuild
+  - name: container
+    build: name:build
+    stages:
+      - type: org.osbuild.oci-archive
+        inputs:
+          base:
+            type: org.osbuild.tree
+            origin: org.osbuild.pipeline
+            references:
+              - name:container-tree
+          layer.1:
+            type: org.osbuild.tree
+            origin: org.osbuild.pipeline
+            references:
+              - name:container-ostree
+        options:
+          architecture: amd64
+          filename: fedora-container.tar
+          config:
+            Cmd:
+              - httpd
+              - -D
+              - FOREGROUND
+            ExposedPorts:
+              - '80'
+          annotations:
+            org.osbuild.ostree.repo: /var/www/html/repo
+            org.osbuild.ostree.ref: fedora/x86_64/osbuild
+            org.osbuild.ostree.layer: '1'
       - type: org.osbuild.ostree.deploy
         options:
           osname: fedora-coreos
@@ -43,4 +173,6 @@ pipelines:
             type: org.osbuild.containers
             origin: org.osbuild.pipeline
             references:
-              name:container: ostree-container.tar
+              name:container:
+                ref: fedora-container.tar
+              
