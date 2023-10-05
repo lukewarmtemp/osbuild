@@ -173,6 +173,5 @@ pipelines:
             type: org.osbuild.containers
             origin: org.osbuild.pipeline
             references:
-              name:container:
-                ref: fedora-container.tar
+              ref: fedora-container.tar
               
