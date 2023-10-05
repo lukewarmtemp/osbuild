@@ -96,7 +96,7 @@ pipelines:
             type: org.osbuild.ostree
             origin: org.osbuild.pipeline
             references:
-              - name:image-tree
+              - name:image-tree: {}
       - type: org.osbuild.ostree.init-fs
       - type: org.osbuild.ostree.os-init
         options:
