@@ -94,7 +94,7 @@ pipelines:
             type: org.osbuild.tree
             origin: org.osbuild.pipeline
             references:
-              - name:container-tree
+              - name:image-tree
         options:
           architecture: amd64
           filename: fedora-container.tar
