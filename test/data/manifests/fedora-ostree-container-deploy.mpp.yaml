@@ -37,64 +37,6 @@ pipelines:
     # build: name:build
     stages:
       - type: org.osbuild.rpm
-        options:
-          gpgkeys:
-            mpp-eval: gpgkeys
-        inputs:
-          packages:
-            type: org.osbuild.files
-            origin: org.osbuild.source
-            mpp-depsolve:
-              architecture: $arch
-              module-platform-id: $module_platform_id
-              repos:
-                mpp-eval: repos
-              packages:
-                - '@cloud-server-environment'
-                - chrony
-                - dracut-config-generic
-                - grub2-pc
-                - kernel-core
-                - langpacks-en
-                - nss-altfiles
-                - ostree
-                - polkit
-                - rpm-ostree
-                - selinux-policy-targeted
-                - systemd-udev
-              excludes:
-                - dracut-config-rescue
-      - type: org.osbuild.locale
-        options:
-          language: en_US.UTF-8
-      - type: org.osbuild.selinux
-        options:
-          file_contexts: etc/selinux/targeted/contexts/files/file_contexts
-      # - type: org.osbuild.ostree.preptree
-      #   options:
-      #     etc_group_members:
-      #       - wheel
-      #       - docker
-  - name: ostree-commit
-    # build: name:build
-    stages:
-      - type: org.osbuild.ostree.init
-        options:
-          path: /repo
-      - type: org.osbuild.ostree.commit
-        inputs:
-          tree:
-            type: org.osbuild.tree
-            origin: org.osbuild.pipeline
-            references:
-              - name:image-tree
-        options:
-          ref: fedora/x86_64/osbuild
-          os_version: '34'
-  - name: container-tree
-    # build: name:build
-    stages:
-      - type: org.osbuild.rpm
         inputs:
           packages:
             type: org.osbuild.files
@@ -114,7 +56,7 @@ pipelines:
                 - sssd-client
                 - util-linux
                 - microdnf
-                - httpd
+                - nginx
               excludes:
                 - kernel
                 - dosfstools
@@ -132,25 +74,17 @@ pipelines:
             mpp-eval: gpgkeys
           exclude:
             docs: true
+          install_langs:
+            - en_US
+      - type: org.osbuild.rpm.macros
+        options:
+          filename: /etc/rpm/macros.image-language-conf
+          macros:
+            _install_langs:
+              - en_US
       - type: org.osbuild.locale
         options:
           language: en_US.UTF-8
-  - name: container-ostree
-    # build: name:build
-    stages:
-      - type: org.osbuild.ostree.init
-        options:
-          path: /var/www/html/repo
-      - type: org.osbuild.ostree.pull
-        options:
-          repo: /var/www/html/repo
-        inputs:
-          commits:
-            type: org.osbuild.ostree
-            origin: org.osbuild.pipeline
-            references:
-              name:ostree-commit:
-                ref: fedora/x86_64/osbuild
   - name: container
     # build: name:build
     stages:
