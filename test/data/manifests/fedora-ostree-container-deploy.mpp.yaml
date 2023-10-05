@@ -27,7 +27,7 @@ mpp-define-image:
         uuid: CA7D7CCB-63ED-4C53-861C-1742536059CC
 pipelines:
   - mpp-import-pipelines:
-    path: fedora-vars.ipp.yaml
+      path: fedora-vars.ipp.yaml
   # - mpp-import-pipeline:
   #     path: fedora-build-v2.ipp.yaml
   #     id: build
