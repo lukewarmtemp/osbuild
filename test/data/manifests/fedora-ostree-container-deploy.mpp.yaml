@@ -86,7 +86,7 @@ pipelines:
         options:
           language: en_US.UTF-8
   - name: container
-    build: name:build
+    # build: name:build
     stages:
       - type: org.osbuild.oci-archive
         inputs:
