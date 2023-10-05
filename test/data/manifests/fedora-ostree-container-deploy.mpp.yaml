@@ -28,13 +28,13 @@ mpp-define-image:
 pipelines:
   - mpp-import-pipelines:
       path: fedora-vars.ipp.yaml
-  - mpp-import-pipeline:
-      path: fedora-build-v2.ipp.yaml
-      id: build
+  # - mpp-import-pipeline:
+  #     path: fedora-build-v2.ipp.yaml
+  #     id: build
     runner:
       mpp-format-string: org.osbuild.fedora{release}
   - name: image-tree
-    build: name:build
+    # build: name:build
     stages:
       - type: org.osbuild.rpm
         options:
@@ -76,7 +76,7 @@ pipelines:
             - wheel
             - docker
   - name: ostree-commit
-    build: name:build
+    # build: name:build
     stages:
       - type: org.osbuild.ostree.init
         options:
@@ -92,7 +92,7 @@ pipelines:
           ref: fedora/x86_64/osbuild
           os_version: '34'
   - name: container-tree
-    build: name:build
+    # build: name:build
     stages:
       - type: org.osbuild.rpm
         inputs:
@@ -136,7 +136,7 @@ pipelines:
         options:
           language: en_US.UTF-8
   - name: container-ostree
-    build: name:build
+    # build: name:build
     stages:
       - type: org.osbuild.ostree.init
         options:
@@ -152,7 +152,7 @@ pipelines:
               name:ostree-commit:
                 ref: fedora/x86_64/osbuild
   - name: container
-    build: name:build
+    # build: name:build
     stages:
       - type: org.osbuild.oci-archive
         inputs:
@@ -220,7 +220,7 @@ pipelines:
           greenboot: false
           ignition: true
   - name: image
-    build: name:build
+    # build: name:build
     stages:
       - type: org.osbuild.truncate
         options:
@@ -348,7 +348,7 @@ pipelines:
               mpp-format-int: '{image.layout[''boot''].index}'
             path: /grub2
   - name: qcow2
-    build: name:build
+    # build: name:build
     stages:
       - type: org.osbuild.qemu
         inputs:
