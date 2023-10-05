@@ -64,7 +64,7 @@ pipelines:
         options:
           osname: fedora-coreos
           # ref: fedora/x86_64/coreos/stable
-          # remote: fedora
+          remote: fedora
           mounts:
             - /boot
             - /boot/efi
