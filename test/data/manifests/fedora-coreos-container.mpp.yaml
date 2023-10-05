@@ -63,7 +63,7 @@ pipelines:
       - type: org.osbuild.ostree.deploy
         options:
           osname: fedora-coreos
-          ref: fedora/x86_64/coreos/stable
+          # ref: fedora/x86_64/coreos/stable
           # remote: fedora
           mounts:
             - /boot
