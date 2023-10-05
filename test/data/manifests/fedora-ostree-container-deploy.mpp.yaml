@@ -33,7 +33,7 @@ pipelines:
       id: build
     runner:
       mpp-format-string: org.osbuild.fedora{release}
-  - name: ostree-tree
+  - name: image-tree
     build: name:build
     stages:
       - type: org.osbuild.rpm
