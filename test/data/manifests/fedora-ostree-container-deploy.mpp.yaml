@@ -40,7 +40,7 @@ pipelines:
     runner:
       mpp-format-string: org.osbuild.fedora{release}
   - name: container
-    # build: name:build
+    build: name:build
     stages:
       - type: org.osbuild.ostree.encapsulate
         options:
