@@ -39,7 +39,7 @@ pipelines:
         - ostree-tree
         - ostree-commit
   - name: container
-    # build: name:build
+    build: name:build
     stages:
       - type: org.osbuild.ostree.encapsulate
         options:
