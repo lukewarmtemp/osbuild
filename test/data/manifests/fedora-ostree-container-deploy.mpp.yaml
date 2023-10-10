@@ -33,6 +33,11 @@ pipelines:
   #     id: build
     runner:
       mpp-format-string: org.osbuild.fedora{release}
+  - mpp-import-pipelines:
+      path: fedora-ostree-commit.mpp.yaml
+      ids:
+        - ostree-tree
+        - ostree-commit
   - name: container
     # build: name:build
     stages:
