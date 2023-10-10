@@ -28,6 +28,9 @@ mpp-define-image:
 pipelines:
   - mpp-import-pipelines:
       path: fedora-vars.ipp.yaml
+  - mpp-import-pipeline:
+      path: fedora-build-v2.ipp.yaml
+      id: build
     runner:
       mpp-format-string: org.osbuild.fedora{release}
   - mpp-import-pipelines:
