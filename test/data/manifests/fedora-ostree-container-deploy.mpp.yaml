@@ -1,36 +1,58 @@
+# version: '2'
+# mpp-define-image:
+#   id: image
+#   #10G
+#   size: '10737418240'
+#   table:
+#     uuid: 00000000-0000-4000-a000-000000000001
+#     label: gpt
+#     partitions:
+#       - id: BIOS-BOOT
+#         size: 2048
+#         type: 21686148-6449-6E6F-744E-656564454649
+#         bootable: true
+#         uuid: FAC7F1FB-3E8D-4137-A512-961DE09A5549
+#       - id: EFI-SYSTEM
+#         size: 260096
+#         type: C12A7328-F81F-11D2-BA4B-00A0C93EC93B
+#         uuid: 68B2905B-DF3E-4FB3-80FA-49D1E773AA33
+#       - id: boot
+#         size: 786432
+#         type: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
+#         uuid: 61B2905B-DF3E-4FB3-80FA-49D1E773AA32
+#       - id: root
+#         # XXX: Dynamically set this size in the future
+#         size: 8388608
+#         type: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
+#         uuid: CA7D7CCB-63ED-4C53-861C-1742536059CC
+# sources:
+#   org.osbuild.ostree:
+#     items:
+#       2c39e9b6a6b26226b626f4daf815d5307a96b2cd57463e94f7c618e312a61980:
+#         remote:
+#           url: https://kojipkgs.fedoraproject.org/ostree/repo/
+# pipelines:
+#   - mpp-import-pipelines:
+#       path: fedora-vars.ipp.yaml
+#   - mpp-import-pipeline:
+#       path: fedora-build-v2.ipp.yaml
+#       id: build
+#     runner:
+#       mpp-format-string: org.osbuild.fedora{release}
+#   - name: container
+#     build: name:build
+#     stages:
+#       - type: org.osbuild.ostree.encapsulate
+#         options:
+#           filename: ostree-container.tar
+#         inputs:
+#           commit:
+#             type: org.osbuild.ostree
+#             origin: org.osbuild.source
+#             references:
+#               "2c39e9b6a6b26226b626f4daf815d5307a96b2cd57463e94f7c618e312a61980":
+#                 ref: fedora/x86_64/coreos/stable
 version: '2'
-mpp-define-image:
-  id: image
-  #10G
-  size: '10737418240'
-  table:
-    uuid: 00000000-0000-4000-a000-000000000001
-    label: gpt
-    partitions:
-      - id: BIOS-BOOT
-        size: 2048
-        type: 21686148-6449-6E6F-744E-656564454649
-        bootable: true
-        uuid: FAC7F1FB-3E8D-4137-A512-961DE09A5549
-      - id: EFI-SYSTEM
-        size: 260096
-        type: C12A7328-F81F-11D2-BA4B-00A0C93EC93B
-        uuid: 68B2905B-DF3E-4FB3-80FA-49D1E773AA33
-      - id: boot
-        size: 786432
-        type: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
-        uuid: 61B2905B-DF3E-4FB3-80FA-49D1E773AA32
-      - id: root
-        # XXX: Dynamically set this size in the future
-        size: 8388608
-        type: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
-        uuid: CA7D7CCB-63ED-4C53-861C-1742536059CC
-sources:
-  org.osbuild.ostree:
-    items:
-      2c39e9b6a6b26226b626f4daf815d5307a96b2cd57463e94f7c618e312a61980:
-        remote:
-          url: https://kojipkgs.fedoraproject.org/ostree/repo/
 pipelines:
   - mpp-import-pipelines:
       path: fedora-vars.ipp.yaml
@@ -39,6 +61,11 @@ pipelines:
       id: build
     runner:
       mpp-format-string: org.osbuild.fedora{release}
+  - mpp-import-pipelines:
+      path: fedora-ostree-commit.mpp.yaml
+      ids:
+        - ostree-tree
+        - ostree-commit
   - name: container
     build: name:build
     stages:
@@ -48,7 +75,7 @@ pipelines:
         inputs:
           commit:
             type: org.osbuild.ostree
-            origin: org.osbuild.source
+            origin: org.osbuild.pipeline
             references:
-              "2c39e9b6a6b26226b626f4daf815d5307a96b2cd57463e94f7c618e312a61980":
-                ref: fedora/x86_64/coreos/stable
+              name:ostree-commit: {}
+
