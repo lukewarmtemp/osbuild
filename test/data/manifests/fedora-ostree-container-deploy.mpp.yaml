@@ -53,6 +53,12 @@
 #               "2c39e9b6a6b26226b626f4daf815d5307a96b2cd57463e94f7c618e312a61980":
 #                 ref: fedora/x86_64/coreos/stable
 version: '2'
+sources:
+  org.osbuild.ostree:
+    items:
+      2c39e9b6a6b26226b626f4daf815d5307a96b2cd57463e94f7c618e312a61980:
+        remote:
+          url: https://kojipkgs.fedoraproject.org/ostree/repo/
 pipelines:
   - mpp-import-pipelines:
       path: fedora-vars.ipp.yaml
@@ -61,69 +67,6 @@ pipelines:
       id: build
     runner:
       mpp-format-string: org.osbuild.fedora{release}
-  - name: ostree-tree
-    build: name:build
-    source-epoch: 1659397331
-    stages:
-      - type: org.osbuild.rpm.macros
-        options:
-          filename: /usr/lib/rpm/macros.d/macros.osbuild
-          macros:
-            _dbpath: /usr/share/rpm
-      - type: org.osbuild.rpm
-        options:
-          gpgkeys:
-            mpp-eval: gpgkeys
-          dbpath: /usr/share/rpm
-          ostree_booted: true
-        inputs:
-          packages:
-            type: org.osbuild.files
-            origin: org.osbuild.source
-            mpp-depsolve:
-              architecture: $arch
-              module-platform-id: $module_platform_id
-              repos:
-                mpp-eval: repos
-              packages:
-                - '@cloud-server-environment'
-                - chrony
-                - cryptsetup
-                - dracut-config-generic
-                - greenboot-grub2
-                - greenboot-reboot
-                - greenboot-rpm-ostree-grub2
-                - greenboot-status
-                - greenboot
-                - grub2-pc
-                - kernel-core
-                - langpacks-en
-                - lvm2
-                - nss-altfiles
-                - polkit
-                - rpm-ostree
-                - selinux-policy-targeted
-              excludes:
-                - dracut-config-rescue
-      - type: org.osbuild.systemd
-        options:
-          enabled_services:
-            - cloud-config
-            - cloud-final
-            - cloud-init
-            - cloud-init-local
-      - type: org.osbuild.locale
-        options:
-          language: en_US.UTF-8
-      - type: org.osbuild.systemd-journald
-        options:
-          filename: 10-persistent.conf
-          config:
-            Journal:
-              Storage: persistent
-      - type: org.osbuild.selinux
-        options:
-          file_contexts: etc/selinux/targeted/contexts/files/file_contexts
   - name: ostree-commit
     build: name:build
     stages:
@@ -132,16 +75,16 @@ pipelines:
           path: /repo
       - type: org.osbuild.ostree.commit
         inputs:
-          tree:
-            type: org.osbuild.tree
-            origin: org.osbuild.pipeline
+          commit:
+            type: org.osbuild.ostree
+            origin: org.osbuild.source
             references:
-              - name:ostree-tree
+              "2c39e9b6a6b26226b626f4daf815d5307a96b2cd57463e94f7c618e312a61980":
+                ref: fedora/x86_64/coreos/stable
         options:
           ref: fedora/x86_64/osbuild
           os_version:
             mpp-format-string: '{release}'
-
   - name: container
     build: name:build
     stages:
