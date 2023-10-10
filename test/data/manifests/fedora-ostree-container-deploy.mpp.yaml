@@ -50,44 +50,44 @@ pipelines:
             origin: org.osbuild.pipeline
             references:
               name:ostree-commit: {}
-      - type: org.osbuild.ostree.init-fs
-      - type: org.osbuild.ostree.os-init
-        options:
-          osname: fedora-coreos
-      - type: org.osbuild.ostree.config
-        options:
-          repo: /ostree/repo
-          config:
-            sysroot:
-              readonly: false
-              bootloader: none
-      - type: org.osbuild.mkdir
-        options:
-          paths:
-            - path: /boot/efi
-              mode: 448
-      - type: org.osbuild.ignition
-      - type: org.osbuild.ostree.deploy
-        options:
-          osname: fedora-coreos
-          mounts:
-            - /boot
-            - /boot/efi
-          rootfs:
-            label: root
-          kernel_opts:
-            - rw
-            - console=tty0
-            - console=ttyS0
-            - ignition.platform.id=qemu
-            - '$ignition_firstboot'
-        inputs:
-          images:
-            type: org.osbuild.containers
-            origin: org.osbuild.pipeline
-            references:
-              sha256:38ad96f95c4a912d3be108650b1637afa38eee6596fd35ff340cea40bf64dbcd:
-                name: ostree-container.tar
+      # - type: org.osbuild.ostree.init-fs
+      # - type: org.osbuild.ostree.os-init
+      #   options:
+      #     osname: fedora-coreos
+      # - type: org.osbuild.ostree.config
+      #   options:
+      #     repo: /ostree/repo
+      #     config:
+      #       sysroot:
+      #         readonly: false
+      #         bootloader: none
+      # - type: org.osbuild.mkdir
+      #   options:
+      #     paths:
+      #       - path: /boot/efi
+      #         mode: 448
+      # - type: org.osbuild.ignition
+      # - type: org.osbuild.ostree.deploy
+      #   options:
+      #     osname: fedora-coreos
+      #     mounts:
+      #       - /boot
+      #       - /boot/efi
+      #     rootfs:
+      #       label: root
+      #     kernel_opts:
+      #       - rw
+      #       - console=tty0
+      #       - console=ttyS0
+      #       - ignition.platform.id=qemu
+      #       - '$ignition_firstboot'
+      #   inputs:
+      #     images:
+      #       type: org.osbuild.containers
+      #       origin: org.osbuild.pipeline
+      #       references:
+      #         sha256:38ad96f95c4a912d3be108650b1637afa38eee6596fd35ff340cea40bf64dbcd:
+      #           name: ostree-container.tar
       # - type: org.osbuild.ostree.selinux
       #   options:
       #     deployment:
