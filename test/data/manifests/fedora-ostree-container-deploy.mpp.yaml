@@ -31,8 +31,8 @@ pipelines:
   # - mpp-import-pipeline:
   #     path: fedora-build-v2.ipp.yaml
   #     id: build
-    runner:
-      mpp-format-string: org.osbuild.fedora{release}
+  #   runner:
+  #     mpp-format-string: org.osbuild.fedora{release}
   - mpp-import-pipelines:
       path: fedora-ostree-commit.mpp.yaml
       ids:
