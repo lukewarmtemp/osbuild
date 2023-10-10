@@ -70,11 +70,11 @@ pipelines:
       - type: org.osbuild.selinux
         options:
           file_contexts: etc/selinux/targeted/contexts/files/file_contexts
-      - type: org.osbuild.ostree.preptree
-        options:
-          etc_group_members:
-            - wheel
-            - docker
+      # - type: org.osbuild.ostree.preptree
+      #   options:
+      #     etc_group_members:
+      #       - wheel
+      #       - docker
   - name: ostree-commit
     # build: name:build
     stages:
