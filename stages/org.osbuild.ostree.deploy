@@ -61,6 +61,10 @@ SCHEMA_2 = """
       "description": "optional OStree remote to use for the deployment",
       "type": "string"
     },
+    "target_container_signature_verification": {
+      "description": "Disable signature verification for container image updates",
+      "type": "boolean"
+    },
     "rootfs": {
       "description": "Identifier to locate the root file system",
       "type": "object",
@@ -151,14 +155,18 @@ def ostree_commit_deploy(tree, inputs, osname, remote, ref, kopts):
                *kargs, sysroot=tree, os=osname)
 
 
-def ostree_container_deploy(tree, inputs, osname, remote, kopts):
+def ostree_container_deploy(tree, inputs, osname, remote, target_gpgcheck, kopts):
     images = containers.parse_containers_input(inputs)
     for image in images.values():
         with containers.container_source(image) as (image_name, image_source):
             extra_args = []
             imgref = f"ostree-unverified-image:{image_source}"
 
-            target_imgref = 'ostree-unverified-registry'
+            if target_gpgcheck:
+                target_imgref = 'ostree-remote-registry'
+            else:
+                target_imgref = 'ostree-unverified-registry'
+
             if remote:
                 # If the user specified an ostree remote it's most likely
                 # because they want to take advantage of GPG signature
@@ -184,6 +192,7 @@ def main(tree, inputs, options):
     kopts = options.get("kernel_opts", [])
     ref = options.get("ref", "")
     remote = options.get("remote")
+    target_gpgcheck = options.get("target_container_signature_verification", True)
 
     # schema should catch the case in which there are more
     # than one input but this adds a second layer of security
@@ -206,7 +215,7 @@ def main(tree, inputs, options):
             mounter.mount(path, path)
 
         if input_type == 'images':
-            ostree_container_deploy(tree, inputs, osname, remote, kopts)
+            ostree_container_deploy(tree, inputs, osname, remote, target_gpgcheck, kopts)
         else:
             ostree_commit_deploy(tree, inputs, osname, remote, ref, kopts)
 
