@@ -151,16 +151,25 @@ def ostree_commit_deploy(tree, inputs, osname, remote, ref, kopts):
                *kargs, sysroot=tree, os=osname)
 
 
-def ostree_container_deploy(tree, inputs, osname, kopts):
+def ostree_container_deploy(tree, inputs, osname, remote, kopts):
     images = containers.parse_containers_input(inputs)
     for image in images.values():
         with containers.container_source(image) as (image_name, image_source):
             extra_args = []
             imgref = f"ostree-unverified-image:{image_source}"
 
+            target_imgref = 'ostree-unverified-registry'
+            if remote:
+                # If the user specified an ostree remote it's most likely
+                # because they want to take advantage of GPG signature
+                # verification of the OSTree commits inside the image.
+                # Add it to the imgref spec here.
+                target_imgref += f':{remote}'
+            target_imgref += f':{image_name}'
+
             extra_args.append(f'--imgref={imgref}')
             extra_args.append(f'--stateroot={osname}')
-            extra_args.append(f'--target-imgref=ostree-unverified-registry:{image_name}')
+            extra_args.append(f'--target-imgref={target_imgref}')
 
             kargs = [f'--karg={v}' for v in kopts]
 
@@ -197,7 +206,7 @@ def main(tree, inputs, options):
             mounter.mount(path, path)
 
         if input_type == 'images':
-            ostree_container_deploy(tree, inputs, osname, kopts)
+            ostree_container_deploy(tree, inputs, osname, remote, kopts)
         else:
             ostree_commit_deploy(tree, inputs, osname, remote, ref, kopts)
 
