@@ -61,6 +61,15 @@ SCHEMA_2 = """
       "description": "optional OStree remote to use for the deployment",
       "type": "string"
     },
+    "target_signature_verification": {
+      "description": "Set signature verification for ostree commit and container image updates",
+      "type": "string",
+      "enum": [
+        "ostree-remote",
+        "container-signing",
+        "none"
+      ]
+    },
     "rootfs": {
       "description": "Identifier to locate the root file system",
       "type": "object",
@@ -151,21 +160,22 @@ def ostree_commit_deploy(tree, inputs, osname, remote, ref, kopts):
                *kargs, sysroot=tree, os=osname)
 
 
-def ostree_container_deploy(tree, inputs, osname, remote, kopts):
+def ostree_container_deploy(tree, inputs, osname, remote, verification_type, kopts):
+    if verification_type == "ostree-remote" and not remote:
+        raise ValueError("missing remote for ostree remote registry signature verification")
+
     images = containers.parse_containers_input(inputs)
     for image in images.values():
         with containers.container_source(image) as (image_name, image_source):
             extra_args = []
             imgref = f"ostree-unverified-image:{image_source}"
 
-            target_imgref = 'ostree-unverified-registry'
-            if remote:
-                # If the user specified an ostree remote it's most likely
-                # because they want to take advantage of GPG signature
-                # verification of the OSTree commits inside the image.
-                # Add it to the imgref spec here.
-                target_imgref += f':{remote}'
-            target_imgref += f':{image_name}'
+            if verification_type == "ostree-remote":
+                target_imgref = f'ostree-remote-registry:{remote}:{image_name}'
+            elif verification_type == "container-signing":
+                target_imgref = f'ostree-image-signed:registry:{image_name}'
+            elif verification_type == "none":
+                target_imgref = f'ostree-unverified-registry:{image_name}'
 
             extra_args.append(f'--imgref={imgref}')
             extra_args.append(f'--stateroot={osname}')
@@ -184,6 +194,7 @@ def main(tree, inputs, options):
     kopts = options.get("kernel_opts", [])
     ref = options.get("ref", "")
     remote = options.get("remote")
+    target_signature_verification = options.get("target_signature_verification", "container-signing")
 
     # schema should catch the case in which there are more
     # than one input but this adds a second layer of security
@@ -206,7 +217,7 @@ def main(tree, inputs, options):
             mounter.mount(path, path)
 
         if input_type == 'images':
-            ostree_container_deploy(tree, inputs, osname, remote, kopts)
+            ostree_container_deploy(tree, inputs, osname, remote, target_signature_verification, kopts)
         else:
             ostree_commit_deploy(tree, inputs, osname, remote, ref, kopts)
 
