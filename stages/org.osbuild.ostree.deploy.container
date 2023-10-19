@@ -104,7 +104,8 @@ def ostree_container_deploy(tree, inputs, osname, target_imgref, kopts):
             # consider implicit signature verification typing, but 
             # can't think of a "clean" way to do it yet other than 
             # parsing the target-imgref and separating by ':'
-            extra_args.append(f'--target-imgref={target_imgref}')
+            if target_imgref:
+                extra_args.append(f'--target-imgref={target_imgref}')
 
             kargs = [f'--karg={v}' for v in kopts]
 
