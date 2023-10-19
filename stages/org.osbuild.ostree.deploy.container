@@ -96,7 +96,7 @@ def make_fs_identifier(desc):
     raise ValueError("unknown rootfs type")
 
 
-def ostree_container_deploy(tree, inputs, osname, remote, target_imgref, kopts):
+def ostree_container_deploy(tree, inputs, osname, target_imgref, kopts):
     images = containers.parse_containers_input(inputs)
     for image in images.values():
         with containers.container_source(image) as (image_name, image_source):
