@@ -31,7 +31,7 @@ SCHEMA_2 = """
       "description": "Name of the stateroot to be used in the deployment",
       "type": "string"
     },
-    "kernel_opts": {pos
+    "kernel_opts":
       "description": "Additional kernel command line options",
       "type": "array",
       "items": {
