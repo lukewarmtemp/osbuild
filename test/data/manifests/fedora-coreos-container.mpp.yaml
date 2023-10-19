@@ -54,11 +54,10 @@ pipelines:
             - path: /boot/efi
               mode: 448
       - type: org.osbuild.ignition
-      - type: org.osbuild.ostree.deploy
+      - type: org.osbuild.ostree.deploy.container
         options:
           osname: fedora-coreos
-          remote: fedora
-          target_signature_verification: ostree-remote
+          target_imgref: ostree-image-signed:registry:quay.io/fedora/fedora-coreos:stable
           mounts:
             - /boot
             - /boot/efi
@@ -76,7 +75,7 @@ pipelines:
               images:
                 - source: quay.io/fedora/fedora-coreos
                   tag: stable
-                  name: quay.io/fedora/fedora-coreos:stable
+                  name: localhost/fedora-coreos
       - type: org.osbuild.ostree.selinux
         options:
           deployment:
