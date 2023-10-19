@@ -101,9 +101,9 @@ def ostree_container_deploy(tree, inputs, osname, target_imgref, kopts):
 
             extra_args.append(f'--imgref={imgref}')
             extra_args.append(f'--stateroot={osname}')
-            # consider implicit signature verification typing, but 
+            # consider implicit signature verification type checks, but 
             # can't think of a "clean" way to do it yet other than 
-            # parsing the target-imgref and separating by ':'
+            # parsing the target-imgref and separating by the ':' character
             if target_imgref:
                 extra_args.append(f'--target-imgref={target_imgref}')
 
