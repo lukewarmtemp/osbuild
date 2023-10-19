@@ -125,11 +125,6 @@ pipelines:
         options:
           label: EFI-SYSTEM
           volid: 7B7795E7
-      - type: org.osbuild.ostree.bootupd
-        options:
-          deployment:
-            osname: fedora-coreos
-            ref: ostree/1/1/0
       - type: org.osbuild.mkfs.ext4
         devices:
           device:
@@ -207,6 +202,7 @@ pipelines:
             type: org.osbuild.fat
             source: efi
             target: /boot/efi
+      - type: org.osbuild.ostree.bootupd
       - type: org.osbuild.grub2.inst
         options:
           platform: i386-pc
