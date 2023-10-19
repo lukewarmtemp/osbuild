@@ -50,9 +50,9 @@ def install_uefi(tree, options):
     if not os.path.exists(tree + "/boot/efi"):
         os.makedirs(tree + "/boot/efi")
     
-    # r = subprocess.run(["ls", "/dev"], check=True)
-    # print(r.stdout)
-    # return
+    r = subprocess.run(["ls", "/dev"], check=True)
+    print(r.stdout)
+    return
 
     root = ostree.deployment_path(tree, osname, ref, serial)
     src_root = f"--src-root=\"{root}\""
