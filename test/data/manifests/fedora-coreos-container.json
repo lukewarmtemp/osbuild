@@ -483,11 +483,10 @@
           "type": "org.osbuild.ignition"
         },
         {
-          "type": "org.osbuild.ostree.deploy",
+          "type": "org.osbuild.ostree.deploy.container",
           "options": {
             "osname": "fedora-coreos",
-            "remote": "fedora",
-            "target_signature_verification": "ostree-remote",
+            "target_imgref": "ostree-image-signed:registry:quay.io/fedora/fedora-coreos:stable",
             "mounts": [
               "/boot",
               "/boot/efi"
@@ -506,7 +505,7 @@
               "origin": "org.osbuild.source",
               "references": {
                 "sha256:3bdf633fb6c027a01688aecf1d3f33bbecf8975b138c1861cb89ae20f3e3e7db": {
-                  "name": "quay.io/fedora/fedora-coreos:stable"
+                  "name": "localhost/fedora-coreos"
                 }
               }
             }

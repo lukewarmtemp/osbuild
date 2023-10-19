@@ -69,7 +69,7 @@ pipelines:
             - path: /boot/efi
               mode: 448
       - type: org.osbuild.ignition
-      - type: org.osbuild.ostree.deploy
+      - type: org.osbuild.ostree.deploy.container
         options:
           osname: fedora-coreos
           mounts:
