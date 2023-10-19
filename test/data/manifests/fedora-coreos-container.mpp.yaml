@@ -37,47 +37,52 @@ pipelines:
     build: name:build
     source-epoch: 1659397331
     stages:
-      - type: org.osbuild.ostree.init-fs
-      - type: org.osbuild.ostree.os-init
-        options:
-          osname: fedora-coreos
-      - type: org.osbuild.ostree.config
-        options:
-          repo: /ostree/repo
-          config:
-            sysroot:
-              readonly: false
-              bootloader: none
-      - type: org.osbuild.mkdir
-        options:
-          paths:
-            - path: /boot/efi
-              mode: 448
-      - type: org.osbuild.ignition
-      - type: org.osbuild.ostree.deploy
-        options:
-          osname: fedora-coreos
-          remote: fedora
-          target_signature_verification: ostree-remote
-          mounts:
-            - /boot
-            - /boot/efi
-          kernel_opts:
-            - rw
-            - console=tty0
-            - console=ttyS0
-            - ignition.platform.id=qemu
-            - '$ignition_firstboot'
-        inputs:
-          images:
-            type: org.osbuild.containers
-            origin: org.osbuild.source
-            mpp-resolve-images:
-              images:
-                - source: quay.io/fedora/fedora-coreos
-                  tag: stable
-                  name: quay.io/fedora/fedora-coreos:stable
-      - type: org.osbuild.ostree.selinux
+      # - type: org.osbuild.ostree.init-fs
+      # - type: org.osbuild.ostree.os-init
+      #   options:
+      #     osname: fedora-coreos
+      # - type: org.osbuild.ostree.config
+      #   options:
+      #     repo: /ostree/repo
+      #     config:
+      #       sysroot:
+      #         readonly: false
+      #         bootloader: none
+      # - type: org.osbuild.mkdir
+      #   options:
+      #     paths:
+      #       - path: /boot/efi
+      #         mode: 448
+      # - type: org.osbuild.ignition
+      # - type: org.osbuild.ostree.deploy
+      #   options:
+      #     osname: fedora-coreos
+      #     remote: fedora
+      #     target_signature_verification: ostree-remote
+      #     mounts:
+      #       - /boot
+      #       - /boot/efi
+      #     kernel_opts:
+      #       - rw
+      #       - console=tty0
+      #       - console=ttyS0
+      #       - ignition.platform.id=qemu
+      #       - '$ignition_firstboot'
+      #   inputs:
+      #     images:
+      #       type: org.osbuild.containers
+      #       origin: org.osbuild.source
+      #       mpp-resolve-images:
+      #         images:
+      #           - source: quay.io/fedora/fedora-coreos
+      #             tag: stable
+      #             name: quay.io/fedora/fedora-coreos:stable
+      # - type: org.osbuild.ostree.selinux
+      #   options:
+      #     deployment:
+      #       osname: fedora-coreos
+      #       ref: ostree/1/1/0
+      - type: org.osbuild.ostree.bootupd
         options:
           deployment:
             osname: fedora-coreos
