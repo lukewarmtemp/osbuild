@@ -1550,16 +1550,6 @@ class ManifestFileV2(ManifestFile):
             ["org.osbuild.skopeo", "org.osbuild.ostree.deploy.container"]:
             return
 
-        # The ostree.deploy stage accepts both containers or
-        # ostree commits as input. If this is an ostree.deploy
-        # stage and there are no images in the inputs then let's
-        # return early. This prevents an empty "images" object
-        # from being created when an ostree commit is used as
-        # an input to ostree.deploy and not a container image.
-        # if stage.get("type", "") == "org.osbuild.ostree.deploy":
-        #     if "images" not in stage.get("inputs", {}):
-        #         return
-
         inputs = element_enter(stage, "inputs", {})
  
         inputs_images = element_enter(inputs, "images", {})

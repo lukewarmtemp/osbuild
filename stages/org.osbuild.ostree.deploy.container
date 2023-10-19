@@ -39,10 +39,6 @@ SCHEMA_2 = """
         "type": "string"
       }
     },
-    "ref": {
-      "description": "OStree ref to use for the deployment",
-      "type": "string"
-    },
     "target_imgref": {
       "description": "imageref used as the source of truth for updates",
       "type": "string"
