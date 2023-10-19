@@ -52,7 +52,7 @@ def install_uefi(tree, options):
     
     r = subprocess.run(["tree", '/'], check=True)
     print(r.stdout)
-    
+    return
 
     root = ostree.deployment_path(tree, osname, ref, serial)
     src_root = f"--src-root=\"{root}\""
@@ -91,44 +91,8 @@ def install_uefi(tree, options):
 
 
 def main(tree, options):
-
-    # this created a state root at `osname`
-
-    # deploying a tree creates new files that need to be properly
-    # labeled for SELinux. In theory, ostree will take care of
-    # this by loading the SELinux config from the deployment and
-    # then applying the labels; but it does so conditionally on
-    # is_selinux_enabled(2), which in our container is FALSE
-    # Therefore we have to do the same dance as ostree does, at
-    # least for now, and manually re-label the affected paths
-    # xref https://github.com/ostreedev/ostree/issues/2804 for a proper fix
-    se_policy = None
-
-    for p in ["etc/selinux", "usr/etc/selinux"]:
-        se_home = os.path.join(root, p)
-        cfgfile = os.path.join(se_home, "config")
-        if not os.path.isfile(cfgfile):
-            continue
-
-        with open(cfgfile, 'r', encoding="utf8") as f:
-            cfg = selinux.parse_config(f)
-        se_policy = selinux.config_get_policy(cfg)
-
-        if se_policy:
-            break
-
-    if not se_policy:
-        raise ValueError("Could not find SELinux policy")
-
-    spec = f"{se_home}/{se_policy}/contexts/files/file_contexts"
-    # kernel, initramfs & BLS config snippets were
-    # written to {tree}/boot
-    selinux.setfiles(spec, tree, "/boot")
-    # various config files will be created as a result
-    # of the 3-way configuration merge, see ostree(3)
-    selinux.setfiles(spec, root, "/etc")
-    # if we populated /var, we need to fix its labels
-    selinux.setfiles(spec, stateroot, "/var")
+    install_uefi(tree, options)
+    return 0
 
 
 if __name__ == '__main__':
