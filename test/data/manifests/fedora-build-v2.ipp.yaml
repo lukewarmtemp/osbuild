@@ -56,6 +56,7 @@ pipelines:
                 - grub2-efi-ia32-cdboot
                 - zstd
                 - openscap-utils
+                - bootupd
         options:
           gpgkeys:
             mpp-eval: gpgkeys
