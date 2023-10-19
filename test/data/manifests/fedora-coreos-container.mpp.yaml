@@ -67,15 +67,15 @@ pipelines:
             - console=ttyS0
             - ignition.platform.id=qemu
             - '$ignition_firstboot'
-        # inputs:
-        #   images:
-        #     type: org.osbuild.containers
-        #     origin: org.osbuild.source
-        #     mpp-resolve-images:
-        #       images:
-        #         - source: quay.io/fedora/fedora-coreos
-        #           tag: stable
-        #           name: localhost/fedora-coreos
+        inputs:
+          images:
+            type: org.osbuild.containers
+            origin: org.osbuild.source
+            mpp-resolve-images:
+              images:
+                - source: quay.io/fedora/fedora-coreos
+                  tag: stable
+                  name: localhost/fedora-coreos
       - type: org.osbuild.ostree.selinux
         options:
           deployment:
