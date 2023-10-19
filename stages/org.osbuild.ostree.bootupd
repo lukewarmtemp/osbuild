@@ -54,7 +54,7 @@ def install_uefi(tree, options):
     # print(r.stdout)
     # return
 
-    deploy_root = "--src-root=/root/ostree"
+    deploy_root = "/root" + ostree.deployment_path(tree, osname, ref, serial)
     rootfs = "/root"
     subprocess.run(["unshare", "-m", "/usr/bin/bootupctl", "backend", "install", deploy_root, rootfs], check=True)
 
