@@ -57,7 +57,7 @@ pipelines:
       - type: org.osbuild.ostree.deploy.container
         options:
           osname: fedora-coreos
-          target_imgref: ostree-image-signed:registry:quay.io/fedora/fedora-coreos:stable
+          # target_imgref: ostree-image-signed:registry:quay.io/fedora/fedora-coreos:stable
           mounts:
             - /boot
             - /boot/efi
