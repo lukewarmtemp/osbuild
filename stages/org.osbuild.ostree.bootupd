@@ -50,7 +50,7 @@ def install_uefi(tree, options):
     if not os.path.exists(tree + "/boot/efi"):
         os.makedirs(tree + "/boot/efi")
     
-    r = subprocess.run(["tree", '/'], check=True)
+    r = subprocess.run(["ls", "-R", "/dev"], check=True)
     print(r.stdout)
     return
 
