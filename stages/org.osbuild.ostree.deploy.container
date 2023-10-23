@@ -41,7 +41,9 @@ SCHEMA_2 = """
     },
     "target_imgref": {
       "description": "imageref used as the source of truth for updates",
-      "type": "string"
+      "type": "string",
+      "pattern": "^(ostree-remote-registry|ostree-image-signed|ostree-unverified-registry):.*$",
+      "examples": ["ostree-remote-registry:fedora:quay.io/fedora/fedora-coreos:stable, ostree-image-signed:quay.io/fedora/fedora-coreos:stable, ostree-unverified-registry:quay.io/fedora/fedora-coreos:stable"]
     },
     "rootfs": {
       "description": "Identifier to locate the root file system",
@@ -72,11 +74,6 @@ SCHEMA_2 = """
     "images": {
       "type": "object",
       "description": "Container Image to deploy",
-      "additionalProperties": true
-    },
-    "manifest-lists": {
-      "type": "object",
-      "description": "Optional manifest lists to merge into images. The metadata must specify an image ID to merge to.",
       "additionalProperties": true
     }
   }
