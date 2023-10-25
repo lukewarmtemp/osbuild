@@ -6,11 +6,14 @@ Create an OSTree deployment[1] for a given container image input
 """
 
 import os
+import subprocess
 import sys
 
 import osbuild.api
 from osbuild.util import containers, ostree
 from osbuild.util.mnt import MountGuard
+
+import json
 
 CAPABILITIES = ["CAP_MAC_ADMIN"]
 
@@ -80,6 +83,14 @@ SCHEMA_2 = """
 }
 """
 
+def skopeo_cli(*args):
+    """Thin wrapper for running the skopeo CLI"""
+    args = list(args)
+    print("skopeo " + " ".join(args), file=sys.stderr)
+    return subprocess.run(["skopeo"] + args,
+                   check=True, 
+                   capture_output=True, 
+                   text=True).stdout.rstrip().strip('\"')
 
 def make_fs_identifier(desc):
     for key in ["uuid", "label"]:
@@ -92,7 +103,7 @@ def make_fs_identifier(desc):
 def ostree_container_deploy(tree, inputs, osname, target_imgref, kopts):
     images = containers.parse_containers_input(inputs)
     for image in images.values():
-        with containers.container_source(image) as (_, image_source):
+        with containers.container_source(image) as (image_name, image_source):
             extra_args = []
             imgref = f"ostree-unverified-image:{image_source}"
 
@@ -108,6 +119,25 @@ def ostree_container_deploy(tree, inputs, osname, target_imgref, kopts):
 
             ostree.cli("container", "image", "deploy",
                        *extra_args, sysroot=tree, *kargs)
+
+            aleph_image_digest = skopeo_cli("inspect", f"{image_source}", "--format", '"{{ .Digest }}"')
+            aleph_image_revision = skopeo_cli("inspect", f"{image_source}", "--format", '"{{ index .Labels \"org.opencontainers.image.revision\" }}"')
+            aleph_image_source = skopeo_cli("inspect", f"{image_source}", "--format", '"{{ index .Labels \"org.opencontainers.image.source\" }}"')
+            aleph_image_version = skopeo_cli("inspect", f"{image_source}", "--format", '"{{ index .Labels \"org.opencontainers.image.version\" }}"')
+
+            aleph_version_data = {
+                "osbuild-version": osbuild.__version__,
+                "image-name": image_name,
+                "image-digest": aleph_image_digest,
+                "image-revision": aleph_image_revision,
+                "image-source": aleph_image_source,
+                "image-version": aleph_image_version
+            }
+
+            aleph_json = json.dumps(aleph_version_data, indent=4)
+            with open(tree + "/.coreos-aleph-version.json", "w") as outfile:
+                outfile.write(aleph_json + "\n")
+            outfile.close()
 
 
 def main(tree, inputs, options):
