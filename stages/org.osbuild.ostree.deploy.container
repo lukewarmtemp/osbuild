@@ -83,15 +83,6 @@ SCHEMA_2 = """
 }
 """
 
-def skopeo_cli(*args):
-    """Thin wrapper for running the skopeo CLI"""
-    args = list(args)
-    print("skopeo " + " ".join(args), file=sys.stderr)
-    return subprocess.run(["skopeo"] + args,
-                   check=True, 
-                   capture_output=True, 
-                   text=True).stdout.rstrip().strip('\"')
-
 def make_fs_identifier(desc):
     for key in ["uuid", "label"]:
         val = desc.get(key)
@@ -116,26 +107,47 @@ def ostree_container_deploy(tree, inputs, osname, target_imgref, kopts):
             extra_args.append(f'--target-imgref={target_imgref}')
 
             kargs = [f'--karg={v}' for v in kopts]
-
             ostree.cli("container", "image", "deploy",
                        *extra_args, sysroot=tree, *kargs)
+            
+            container_data = subprocess.run(["ostree", "container", "image", "metadata", f"--repo={tree}/ostree/repo", f"{image_source}"],
+					check=True,
+					capture_output=True, 
+					text=True).stdout.rstrip().strip('\"')
+            
+            container_data_config = subprocess.run(["ostree", "container", "image", "metadata", f"--repo={tree}/ostree/repo", f"{image_source}", "--config"],
+					check=True,
+					capture_output=True,
+					text=True).stdout.rstrip().strip('\"')
+            
+            container_data_json = json.loads(container_data)
+            container_data_config_json = json.loads(container_data_config)
 
-            aleph_image_digest = skopeo_cli("inspect", f"{image_source}", "--format", '"{{ .Digest }}"')
-            aleph_image_revision = skopeo_cli("inspect", f"{image_source}", "--format", '"{{ index .Labels \"org.opencontainers.image.revision\" }}"')
-            aleph_image_source = skopeo_cli("inspect", f"{image_source}", "--format", '"{{ index .Labels \"org.opencontainers.image.source\" }}"')
-            aleph_image_version = skopeo_cli("inspect", f"{image_source}", "--format", '"{{ index .Labels \"org.opencontainers.image.version\" }}"')
+            aleph_digest = container_data_json['config']['digest']
+            aleph_ref = f"docker://{target_imgref}@{aleph_digest}"
+            aleph_ostree_version = container_data_config_json['config']['Labels']['version']
+            aleph_ostree_commit = container_data_config_json['config']['Labels']['ostree.commit']
+            aleph_platform = "" # still up for discussion
+            aleph_imgid = "" # still up for discussion
+            aleph_container_image = container_data_config_json['config']['Labels']
 
             aleph_version_data = {
                 "osbuild-version": osbuild.__version__,
-                "image-name": image_name,
-                "image-digest": aleph_image_digest,
-                "image-revision": aleph_image_revision,
-                "image-source": aleph_image_source,
-                "image-version": aleph_image_version
+                "ref": aleph_ref,
+                "build": aleph_ostree_version,
+                "ostree-version": aleph_ostree_version,
+                "ostree-commit": aleph_ostree_commit,
+                "platform": aleph_platform,
+                "imgid": aleph_imgid,
+                "container-image": {
+                    "image-name": image_name,
+                    "image-digest": aleph_digest,
+                    "image-labels": aleph_container_image
+                }
             }
 
             aleph_json = json.dumps(aleph_version_data, indent=4)
-            with open(tree + "/.coreos-aleph-version.json", "w") as outfile:
+            with open(tree + "/.osbuild-container-aleph.json", "w") as outfile:
                 outfile.write(aleph_json + "\n")
             outfile.close()
 

@@ -28,13 +28,13 @@ mpp-define-image:
 pipelines:
   - mpp-import-pipelines:
       path: fedora-vars.ipp.yaml
-  - mpp-import-pipeline:
-      path: fedora-build-v2.ipp.yaml
-      id: build
+  # - mpp-import-pipeline:
+  #     path: fedora-build-v2.ipp.yaml
+  #     id: build
     runner:
       mpp-format-string: org.osbuild.fedora{release}
   - name: image-tree
-    build: name:build
+    # build: name:build
     source-epoch: 1659397331
     stages:
       - type: org.osbuild.ostree.init-fs
@@ -75,6 +75,15 @@ pipelines:
               images:
                 - source: registry.gitlab.com/redhat/services/products/image-builder/ci/images/fedora-coreos
                   tag: stable
+      # - type: org.osbuild.ostree.aleph
+      #   inputs:
+      #       images:
+      #         type: org.osbuild.containers
+      #         origin: org.osbuild.source
+      #         mpp-resolve-images:
+      #           images:
+      #             - source: registry.gitlab.com/redhat/services/products/image-builder/ci/images/fedora-coreos
+      #               tag: stable
       - type: org.osbuild.ostree.selinux
         options:
           deployment:
@@ -94,7 +103,7 @@ pipelines:
           greenboot: false
           ignition: true
   - name: image
-    build: name:build
+    # build: name:build
     stages:
       - type: org.osbuild.truncate
         options:
@@ -218,7 +227,7 @@ pipelines:
               mpp-format-int: '{image.layout[''boot''].index}'
             path: /grub2
   - name: qcow2
-    build: name:build
+    # build: name:build
     stages:
       - type: org.osbuild.qemu
         inputs:
