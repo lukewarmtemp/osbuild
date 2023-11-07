@@ -104,30 +104,36 @@ def ostree_container_deploy(tree, inputs, osname, target_imgref, kopts):
             # consider implicit signature verification type checks, but
             # can't think of a "clean" way to do it yet other than
             # parsing the target-imgref and separating by the ':' character
-            # extra_args.append(f'--target-imgref={target_imgref}')
+            extra_args.append(f'--target-imgref={target_imgref}')
 
             kargs = [f'--karg={v}' for v in kopts]
-            
             ostree.cli("container", "image", "deploy",
                        *extra_args, sysroot=tree, *kargs)
+
+            # the `ostree container image metadata` command utilizes the
+            # target-imgref, but only takes the name of the container image
+            target_imgref_list = target_imgref.split(':')
+            if target_imgref_list[0] == "ostree-remote-registry":
+                target_imgref_name = ':'.join(target_imgref_list[2:])
+            elif target_imgref_list[0] == ("ostree-image-signed" or "ostree-unverified-registry"):
+                target_imgref_name = ':'.join(target_imgref_list[1:])
             
-            container_data = subprocess.run(["ostree", "container", "image", "metadata", f"--repo={tree}/ostree/repo", f"{image_source}"],
+            container_data = subprocess.run(["ostree", "container", "image", "metadata", f"--repo={tree}/ostree/repo", f"registry:{target_imgref_name}"],
 					check=True,
-					capture_output=True, 
-					text=True).stdout.rstrip().strip('\"')
+					capture_output=True,
+					text=True).stdout.rstrip()
             
-            container_data_config = subprocess.run(["ostree", "container", "image", "metadata", f"--repo={tree}/ostree/repo", f"{image_source}", "--config"],
+            container_data_config = subprocess.run(["ostree", "container", "image", "metadata", f"--repo={tree}/ostree/repo", f"registry:{target_imgref_name}", "--config"],
 					check=True,
-					capture_output=True, 
-					text=True).stdout.rstrip().strip('\"')
+					capture_output=True,
+					text=True).stdout.rstrip()
             
             container_data_json = json.loads(container_data)
             container_data_config_json = json.loads(container_data_config)
 
             aleph_digest = container_data_json['config']['digest']
-            aleph_ref = f"docker://{target_imgref}@{aleph_digest}"
-            aleph_ostree_version = container_data_config_json['config']['Labels']['version']
-            aleph_ostree_commit = container_data_config_json['config']['Labels']['ostree.commit']
+            aleph_ref = f"docker://{target_imgref}"
+            aleph_ostree_version = container_data_config_json['config']['Labels']['org.opencontainers.image.version']
             aleph_platform = "" # still up for discussion
             aleph_imgid = "" # still up for discussion
             aleph_container_image = container_data_config_json['config']['Labels']
@@ -136,8 +142,7 @@ def ostree_container_deploy(tree, inputs, osname, target_imgref, kopts):
                 "osbuild-version": osbuild.__version__,
                 "ref": aleph_ref,
                 "build": aleph_ostree_version,
-                "ostree-version": aleph_ostree_version,
-                "ostree-commit": aleph_ostree_commit,
+                "version": aleph_ostree_version,
                 "platform": aleph_platform,
                 "imgid": aleph_imgid,
                 "container-image": {
@@ -146,6 +151,12 @@ def ostree_container_deploy(tree, inputs, osname, target_imgref, kopts):
                     "image-labels": aleph_container_image
                 }
             }
+            
+            # the 'ostree.commit' label will be optional in the future so
+            # prevent hard failing if key is not found
+            if 'ostree.commit' in container_data_config_json['config']['Labels']:
+                aleph_ostree_commit = container_data_config_json['config']['Labels']['ostree.commit']
+                aleph_version_data["ostree-commit"] = aleph_ostree_commit
 
             aleph_json = json.dumps(aleph_version_data, indent=4)
             with open(tree + "/.osbuild-container-aleph.json", "w") as outfile:
