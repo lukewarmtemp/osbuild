@@ -1,0 +1,31 @@
+#!/usr/bin/python3
+"""
+Inject coreos-aleph-version.json file
+"""
+
+import os
+import subprocess
+import sys
+
+import osbuild.api
+from osbuild.util import containers, ostree
+from osbuild.util.mnt import MountGuard
+
+CAPABILITIES = ["CAP_MAC_ADMIN"]
+
+SCHEMA_2 = """
+"""
+
+
+def main(tree):
+    # rpm-ostree status --json | jq -r '.deployments.version'
+    # most likely we will have to look at where rpm-ostree status pulls the data from and then find it myself
+    r = subprocess.run(["rpm-ostree", "status", "--json", "|", "jq", "-r", "'.deployments[].version'"], check=True)
+    print(r.stdout)
+    # subprocess.run(["jq", "-re", ".\"buildid\"", "<", ""], check=True)
+
+
+if __name__ == '__main__':
+    stage_args = osbuild.api.arguments()
+    r = main(stage_args["tree"])
+    sys.exit(r)
