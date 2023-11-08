@@ -133,7 +133,7 @@ def ostree_container_deploy(tree, inputs, osname, target_imgref, kopts):
 
             aleph_digest = container_data_json['config']['digest']
             aleph_ref = f"docker://{target_imgref}"
-            aleph_ostree_version = container_data_config_json['config']['Labels']['org.opencontainers.image.version']
+            aleph_version = container_data_config_json['config']['Labels']['org.opencontainers.image.version']
             aleph_platform = "" # still up for discussion
             aleph_imgid = "" # still up for discussion
             aleph_container_image = container_data_config_json['config']['Labels']
@@ -141,8 +141,8 @@ def ostree_container_deploy(tree, inputs, osname, target_imgref, kopts):
             aleph_version_data = {
                 "osbuild-version": osbuild.__version__,
                 "ref": aleph_ref,
-                "build": aleph_ostree_version,
-                "version": aleph_ostree_version,
+                "build": aleph_version,
+                "version": aleph_version,
                 "platform": aleph_platform,
                 "imgid": aleph_imgid,
                 "container-image": {
@@ -154,14 +154,14 @@ def ostree_container_deploy(tree, inputs, osname, target_imgref, kopts):
             
             # the 'ostree.commit' label will be optional in the future so
             # prevent hard failing if key is not found
-            if 'ostree.commit' in container_data_config_json['config']['Labels']:
-                aleph_ostree_commit = container_data_config_json['config']['Labels']['ostree.commit']
+            aleph_ostree_commit = container_data_config_json['config']['Labels'].get('ostree.commit')
+            if aleph_ostree_commit is not None:
                 aleph_version_data["ostree-commit"] = aleph_ostree_commit
 
-            aleph_json = json.dumps(aleph_version_data, indent=4)
-            with open(tree + "/.osbuild-container-aleph.json", "w") as outfile:
-                outfile.write(aleph_json + "\n")
-            outfile.close()
+            with open(tree + "/.osbuild-container-aleph.json", "w") as f:
+                json.dump(aleph_version_data, f, indent=4, sort_keys=True)
+                f.write("\n")
+            f.close()
 
 
 def main(tree, inputs, options):
