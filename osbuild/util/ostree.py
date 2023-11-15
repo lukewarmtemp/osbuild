@@ -160,7 +160,7 @@ def rev_parse(repo: PathLike, ref: str) -> str:
     return msg
 
 
-def show(repo: PathLike, checksum: str) -> str:
+def show(repo: PathLike, checksum: str, *args) -> str:
     """Show the metada of an OSTree object pointed by `checksum` in the repository at `repo`"""
 
     repo = os.fspath(repo)
@@ -168,7 +168,7 @@ def show(repo: PathLike, checksum: str) -> str:
     if isinstance(repo, bytes):
         repo = repo.decode("utf8")
 
-    r = subprocess.run(["ostree", "show", f"--repo={repo}", checksum],
+    r = subprocess.run(["ostree", "show", f"--repo={repo}", checksum] + list(args),
                        encoding="utf8",
                        stdout=subprocess.PIPE,
                        stderr=subprocess.STDOUT,
@@ -203,6 +203,14 @@ def cli(*args, _input=None, **kwargs):
                    input=_input,
                    check=True)
 
+def cli_output(*args, _input=None, **kwargs):
+    """Thin wrapper for running the ostree CLI"""
+    args = list(args) + [f'--{k}={v}' for k, v in kwargs.items()]
+    print("ostree " + " ".join(args), file=sys.stderr)
+    return subprocess.run(["ostree"] + args,
+                    check=True,
+                    capture_output=True,
+                    text=True).stdout.rstrip()
 
 def parse_input_commits(commits):
     """Parse ostree input commits and return the repo path and refs specified"""
