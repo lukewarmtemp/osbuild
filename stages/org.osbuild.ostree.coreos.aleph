@@ -56,10 +56,16 @@ SCHEMA_2 = """
 """
 
 def write_to_file(tree, filename, data):
-    with open(tree + filename, "w") as f:
+    with open(tree + "/" + filename, "w") as f:
         json.dump(data, f, indent=4, sort_keys=True)
         f.write("\n")
     f.close()
+
+    # create a symlink for backwards compatibility with CoreOS
+    cwd = os.getcwd()
+    os.chdir(tree)
+    subprocess.run(["ln", "-s", filename, ".coreos-aleph-version.json"], check=True)
+    os.chdir(cwd)
 
 
 def aleph_commit(tree, inputs, remote):
@@ -84,7 +90,7 @@ def aleph_commit(tree, inputs, remote):
         "ostree-commit": aleph_ostree_commit
     }
 
-    write_to_file(tree, "/.aleph-version.json", aleph_version_data)
+    write_to_file(tree, ".aleph-version.json", aleph_version_data)
 
     
 def aleph_container(tree, inputs, target_imgref):
@@ -132,7 +138,7 @@ def aleph_container(tree, inputs, target_imgref):
             if aleph_ostree_commit is not None:
                 aleph_version_data["ostree-commit"] = aleph_ostree_commit
 
-            write_to_file(tree, "/.aleph-version.json", aleph_version_data)
+            write_to_file(tree, ".aleph-version.json", aleph_version_data)
 
 
 def main(tree, options, inputs,):
