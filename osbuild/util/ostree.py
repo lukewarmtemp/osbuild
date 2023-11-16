@@ -160,7 +160,7 @@ def rev_parse(repo: PathLike, ref: str) -> str:
     return msg
 
 
-def show(repo: PathLike, checksum: str, *args) -> str:
+def show(repo: PathLike, checksum: str) -> str:
     """Show the metada of an OSTree object pointed by `checksum` in the repository at `repo`"""
 
     repo = os.fspath(repo)
@@ -168,7 +168,7 @@ def show(repo: PathLike, checksum: str, *args) -> str:
     if isinstance(repo, bytes):
         repo = repo.decode("utf8")
 
-    r = subprocess.run(["ostree", "show", f"--repo={repo}", checksum] + list(args),
+    r = subprocess.run(["ostree", "show", f"--repo={repo}", checksum],
                        encoding="utf8",
                        stdout=subprocess.PIPE,
                        stderr=subprocess.STDOUT,
@@ -192,25 +192,15 @@ def pull_local(source_repo: PathLike, target_repo: PathLike, remote: str, ref: s
         *extra_args,
         repo=target_repo)
 
-
 def cli(*args, _input=None, **kwargs):
     """Thin wrapper for running the ostree CLI"""
     args = list(args) + [f'--{k}={v}' for k, v in kwargs.items()]
     print("ostree " + " ".join(args), file=sys.stderr)
-    subprocess.run(["ostree"] + args,
+    return subprocess.run(["ostree"] + args,
                    encoding="utf8",
-                   stdout=sys.stderr,
+                   stdout=subprocess.PIPE,
                    input=_input,
                    check=True)
-
-def cli_output(*args, _input=None, **kwargs):
-    """Thin wrapper for running the ostree CLI"""
-    args = list(args) + [f'--{k}={v}' for k, v in kwargs.items()]
-    print("ostree " + " ".join(args), file=sys.stderr)
-    return subprocess.run(["ostree"] + args,
-                    check=True,
-                    capture_output=True,
-                    text=True).stdout.rstrip()
 
 def parse_input_commits(commits):
     """Parse ostree input commits and return the repo path and refs specified"""

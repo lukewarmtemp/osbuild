@@ -5,13 +5,13 @@ Create aleph version file for the deployment.
 
 
 import os
-import subprocess
 import sys
 
 import osbuild.api
-from osbuild.util import containers, ostree
+from osbuild.util import ostree
 
 import json
+from glob import glob
 
 CAPABILITIES = ["CAP_MAC_ADMIN"]
 
@@ -20,68 +20,55 @@ SCHEMA_2 = """
 "options": {
   "additionalProperties": false,
   "properties": {
-    "target_imgref": {
-      "description": "imageref used as the source of truth for updates",
-      "type": "string",
-      "pattern": "^(ostree-remote-registry|ostree-image-signed|ostree-unverified-registry):.*$",
-      "examples": ["ostree-remote-registry:fedora:quay.io/fedora/fedora-coreos:stable, ostree-image-signed:quay.io/fedora/fedora-coreos:stable, ostree-unverified-registry:quay.io/fedora/fedora-coreos:stable"]
+    "coreos": {
+      "description": "boolean to allow for CoreOS aleph version backwards compatibility",
+      "type": "boolean"
     },
-     "remote": {
-      "description": "optional OStree remote to use for the deployment",
-      "type": "string"
-    }
-  }
-},
-"inputs": {
-  "type": "object",
-  "additionalProperties": false,
-  "oneOf": [{
-    "required": ["images"]
-  }, {
-    "required": ["commits"]
-  }],
-  "properties": {
-    "images": {
-      "type": "object",
-      "description": "Container Image to deploy",
-      "additionalProperties": true
-    },
-    "commits": {
-      "type": "object",
-      "description": "OStree commit to deploy",
-      "additionalProperties": true
+    "deployment": {
+      "additionalProperties": false,
+      "required": ["osname", "ref"],
+      "properties": {
+        "osname": {
+          "description": "Name of the stateroot to be used in the deployment",
+          "type": "string"
+        },
+        "ref": {
+          "description": "OStree ref to create and use for deployment",
+          "type": "string"
+        },
+        "serial": {
+          "description": "The deployment serial (usually '0')",
+          "type": "number",
+          "default": 0
+        }
+      }
     }
   }
 }
 """
 
-def write_to_file(tree, filename, data):
+def write_to_file(tree, filename, data, coreos):
     with open(tree + "/" + filename, "w") as f:
         json.dump(data, f, indent=4, sort_keys=True)
         f.write("\n")
     f.close()
 
     # create a symlink for backwards compatibility with CoreOS
-    cwd = os.getcwd()
-    os.chdir(tree)
-    subprocess.run(["ln", "-s", filename, ".coreos-aleph-version.json"], check=True)
-    os.chdir(cwd)
+    if coreos:
+      cwd = os.getcwd()
+      os.chdir(tree)
+      os.symlink(filename, ".coreos-aleph-version.json")
+      os.chdir(cwd)
 
 
-def aleph_commit(tree, inputs, remote):
-    __, commits = ostree.parse_input_commits(inputs["commits"])
-    for commit, data in commits.items():
-        ref = data.get("ref", commit)
-
-    if remote:
-        ref = f"{remote}:{ref}"
-
+def aleph_commit(tree, imgref, coreos):
     extra_args = []
     extra_args.append("--print-metadata-key=version")
 
-    aleph_version = ostree.show(f"{tree}/ostree/repo", "ostree/1/1/0", *extra_args)
-    aleph_ref = ref
-    aleph_ostree_commit = commit
+    aleph_version = ostree.cli("show", f"--repo={tree}/ostree/repo", "ostree/1/1/0", *extra_args).stdout.rstrip().strip('\'')
+    aleph_ref = imgref
+    # get the commit by parsing the revision of the deployment
+    aleph_ostree_commit = ostree.rev_parse(tree + "/ostree/repo", "ostree/1/1/0")
 
     aleph_version_data = {
         "osbuild-version": osbuild.__version__,
@@ -90,66 +77,79 @@ def aleph_commit(tree, inputs, remote):
         "ostree-commit": aleph_ostree_commit
     }
 
-    write_to_file(tree, ".aleph-version.json", aleph_version_data)
+    write_to_file(tree, ".aleph-version.json", aleph_version_data, coreos)
 
+
+def aleph_container(tree, imgref, coreos):
+    # extract the image name from the imgref
+    imgref_list = imgref.split(':')
+    if imgref_list[0] in ["ostree-remote-registry", "ostree-remote-image"]:
+        img_name = ':'.join(imgref_list[2:])
+    elif imgref_list[0] in ["ostree-image-signed", "ostree-unverified-registry"]:
+        img_name = ':'.join(imgref_list[1:])
+
+    img_name = img_name.lstrip('docker://')
+
+    extra_args = []
+    extra_args.append(f"--repo={tree}/ostree/repo")
+    extra_args.append(f"registry:{img_name}")
+
+    container_data = ostree.cli("container", "image", "metadata", *extra_args).stdout.rstrip()
+    container_data_json = json.loads(container_data)
+
+    extra_args.append("--config")
+    container_data_config = ostree.cli("container", "image", "metadata", *extra_args).stdout.rstrip()
+    container_data_config_json = json.loads(container_data_config)
+
+    aleph_digest = container_data_json['config']['digest']
+    aleph_ref = f"docker://{imgref}"
+    aleph_version = container_data_config_json['config']['Labels']['org.opencontainers.image.version']
+    aleph_container_image = container_data_config_json['config']['Labels']
+
+    aleph_version_data = {
+        "osbuild-version": osbuild.__version__,
+        "ref": aleph_ref,
+        "build": aleph_version,
+        "version": aleph_version,
+        "container-image": {
+            "image-name": img_name,
+            "image-digest": aleph_digest,
+            "image-labels": aleph_container_image
+        }
+    }
     
-def aleph_container(tree, inputs, target_imgref):
-    images = containers.parse_containers_input(inputs)
-    for image in images.values():
-        with containers.container_source(image) as (image_name, __):
-            
-            target_imgref_list = target_imgref.split(':')
-            if target_imgref_list[0] == "ostree-remote-registry":
-                target_imgref_name = ':'.join(target_imgref_list[2:])
-            elif target_imgref_list[0] in ["ostree-image-signed", "ostree-unverified-registry"]:
-                target_imgref_name = ':'.join(target_imgref_list[1:])
+    # the 'ostree.commit' label will be optional in the future so
+    # prevent hard failing if key is not found
+    aleph_ostree_commit = container_data_config_json['config']['Labels'].get('ostree.commit')
+    if aleph_ostree_commit is not None:
+        aleph_version_data["ostree-commit"] = aleph_ostree_commit
 
-            extra_args = []
-            extra_args.append(f"--repo={tree}/ostree/repo")
-            extra_args.append(f"registry:{target_imgref_name}")
-
-            container_data = ostree.cli_output("container", "image", "metadata", *extra_args)
-            container_data_json = json.loads(container_data)
-
-            extra_args.append("--config")
-            container_data_config = ostree.cli_output("container", "image", "metadata", *extra_args)
-            container_data_config_json = json.loads(container_data_config)
-
-            aleph_digest = container_data_json['config']['digest']
-            aleph_ref = f"docker://{target_imgref}"
-            aleph_version = container_data_config_json['config']['Labels']['org.opencontainers.image.version']
-            aleph_container_image = container_data_config_json['config']['Labels']
-
-            aleph_version_data = {
-                "osbuild-version": osbuild.__version__,
-                "ref": aleph_ref,
-                "build": aleph_version,
-                "version": aleph_version,
-                "container-image": {
-                    "image-name": image_name,
-                    "image-digest": aleph_digest,
-                    "image-labels": aleph_container_image
-                }
-            }
-            
-            # the 'ostree.commit' label will be optional in the future so
-            # prevent hard failing if key is not found
-            aleph_ostree_commit = container_data_config_json['config']['Labels'].get('ostree.commit')
-            if aleph_ostree_commit is not None:
-                aleph_version_data["ostree-commit"] = aleph_ostree_commit
-
-            write_to_file(tree, ".aleph-version.json", aleph_version_data)
+    write_to_file(tree, ".aleph-version.json", aleph_version_data, coreos)
 
 
 def main(tree, options, inputs,):
-    target_imgref = options.get("target_imgref", "")
-    remote = options.get("remote", "")
-    input_type = list(inputs.keys())[0]
+    coreos = options.get("coreos", False)
+    dep = options.get("deployment", None)
+    origin = ""
 
-    if input_type == "commits":
-        aleph_commit(tree, inputs, remote)
-    elif input_type == "images":
-        aleph_container(tree, inputs, target_imgref)
+    # if deployment is specified, use it to find the origin file.
+    # otherwise, autodetect the only deployment found in the tree.
+    if dep is not None:
+        osname = dep.get("osname", "")
+        ref = dep.get("ref", "")
+        serial = dep.get("serial", 0)
+        origin = ostree.deployment_path(tree, osname, ref, serial) + ".origin"
+    else:
+        for filename in glob(tree + '/**/*.0.origin', recursive=True):
+            origin = filename
+    
+    with open(origin) as f: s = f.read()
+    imgref = s.split("=")[1].rstrip()
+
+    if 'docker://' in imgref:
+        aleph_container(tree, imgref, coreos)
+    else:
+        aleph_commit(tree, imgref, coreos)
     
 
 if __name__ == '__main__':
