@@ -1547,13 +1547,9 @@ class ManifestFileV2(ManifestFile):
 
     def _process_container(self, stage):
         if stage.get("type", "") not in \
-            ["org.osbuild.skopeo", "org.osbuild.ostree.deploy.container", "org.osbuild.ostree.coreos.aleph"]:
+            ["org.osbuild.skopeo", "org.osbuild.ostree.deploy.container"]:
             return
 
-        if stage.get("type", "") == "org.osbuild.ostree.coreos.aleph":
-            if "images" not in stage.get("inputs", {}):
-                return
-            
         inputs = element_enter(stage, "inputs", {})
  
         inputs_images = element_enter(inputs, "images", {})
@@ -1626,7 +1622,7 @@ class ManifestFileV2(ManifestFile):
 
     def _process_ostree_commits(self, stage):
         if stage.get("type", "") not in \
-            ["org.osbuild.ostree.pull", "org.osbuild.ostree.deploy", "org.osbuild.ostree.coreos.aleph"]:
+            ["org.osbuild.ostree.pull", "org.osbuild.ostree.deploy"]:
             return
 
         # The ostree.deploy stage accepts both containers or
@@ -1635,7 +1631,7 @@ class ManifestFileV2(ManifestFile):
         # return early. This prevents an empty "commits" object
         # from being created when a container image is used as
         # an input to ostree.deploy and not an ostree commit.
-        if stage.get("type", "") in ["org.osbuild.ostree.deploy", "org.osbuild.ostree.coreos.aleph"]:
+        if stage.get("type", "") == "org.osbuild.ostree.deploy":
             if "commits" not in stage.get("inputs", {}):
                 return
 

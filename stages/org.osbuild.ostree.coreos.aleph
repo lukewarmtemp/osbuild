@@ -11,7 +11,6 @@ import osbuild.api
 from osbuild.util import ostree
 
 import json
-from glob import glob
 
 CAPABILITIES = ["CAP_MAC_ADMIN"]
 
@@ -20,7 +19,7 @@ SCHEMA_2 = """
 "options": {
   "additionalProperties": false,
   "properties": {
-    "coreos": {
+    "coreos_compat": {
       "description": "boolean to allow for CoreOS aleph version backwards compatibility",
       "type": "boolean"
     },
@@ -47,21 +46,8 @@ SCHEMA_2 = """
 }
 """
 
-def write_to_file(tree, filename, data, coreos):
-    with open(tree + "/" + filename, "w") as f:
-        json.dump(data, f, indent=4, sort_keys=True)
-        f.write("\n")
-    f.close()
 
-    # create a symlink for backwards compatibility with CoreOS
-    if coreos:
-      cwd = os.getcwd()
-      os.chdir(tree)
-      os.symlink(filename, ".coreos-aleph-version.json")
-      os.chdir(cwd)
-
-
-def aleph_commit(tree, imgref, coreos):
+def aleph_commit(tree, imgref):
     extra_args = []
     extra_args.append("--print-metadata-key=version")
 
@@ -77,10 +63,10 @@ def aleph_commit(tree, imgref, coreos):
         "ostree-commit": aleph_ostree_commit
     }
 
-    write_to_file(tree, ".aleph-version.json", aleph_version_data, coreos)
+    return aleph_version_data
 
 
-def aleph_container(tree, imgref, coreos):
+def aleph_container(tree, imgref):
     # extract the image name from the imgref
     imgref_list = imgref.split(':')
     if imgref_list[0] in ["ostree-remote-registry", "ostree-remote-image"]:
@@ -94,17 +80,17 @@ def aleph_container(tree, imgref, coreos):
     extra_args.append(f"--repo={tree}/ostree/repo")
     extra_args.append(f"registry:{img_name}")
 
-    container_data = ostree.cli("container", "image", "metadata", *extra_args).stdout.rstrip()
-    container_data_json = json.loads(container_data)
+    container_data_json = ostree.cli("container", "image", "metadata", *extra_args).stdout.rstrip()
+    container_data = json.loads(container_data_json)
 
     extra_args.append("--config")
-    container_data_config = ostree.cli("container", "image", "metadata", *extra_args).stdout.rstrip()
-    container_data_config_json = json.loads(container_data_config)
+    container_data_config_json = ostree.cli("container", "image", "metadata", *extra_args).stdout.rstrip()
+    container_data_config = json.loads(container_data_config_json)
 
-    aleph_digest = container_data_json['config']['digest']
+    aleph_digest = container_data['config']['digest']
     aleph_ref = f"docker://{imgref}"
-    aleph_version = container_data_config_json['config']['Labels']['org.opencontainers.image.version']
-    aleph_container_image = container_data_config_json['config']['Labels']
+    aleph_version = container_data_config['config']['Labels']['org.opencontainers.image.version']
+    aleph_container_image = container_data_config['config']['Labels']
 
     aleph_version_data = {
         "osbuild-version": osbuild.__version__,
@@ -120,16 +106,19 @@ def aleph_container(tree, imgref, coreos):
     
     # the 'ostree.commit' label will be optional in the future so
     # prevent hard failing if key is not found
-    aleph_ostree_commit = container_data_config_json['config']['Labels'].get('ostree.commit')
+    aleph_ostree_commit = container_data_config['config']['Labels'].get('ostree.commit')
     if aleph_ostree_commit is not None:
         aleph_version_data["ostree-commit"] = aleph_ostree_commit
 
-    write_to_file(tree, ".aleph-version.json", aleph_version_data, coreos)
+    return aleph_version_data
 
 
-def main(tree, options, inputs,):
-    coreos = options.get("coreos", False)
+def main(tree, options):
+    coreos_compat = options.get("coreos_compat", False)
     dep = options.get("deployment", None)
+    osname = ""
+    ref = ""
+    serial = None
     origin = ""
 
     # if deployment is specified, use it to find the origin file.
@@ -138,23 +127,46 @@ def main(tree, options, inputs,):
         osname = dep.get("osname", "")
         ref = dep.get("ref", "")
         serial = dep.get("serial", 0)
-        origin = ostree.deployment_path(tree, osname, ref, serial) + ".origin"
-    else:
-        for filename in glob(tree + '/**/*.0.origin', recursive=True):
-            origin = filename
     
-    with open(origin) as f: s = f.read()
-    imgref = s.split("=")[1].rstrip()
+    origin = ostree.deployment_path(tree, osname, ref, serial) + ".origin"
+    # use the origin file to find the target_imgref and dictate whether
+    # the system was deployed from an container image or ostree commit.
+    # example container case: container-image-reference=ostree-remote-image:fedora:docker://quay.io/fedora/fedora-coreos:stable
+    # example ostree commit case: refspec=fedora:fedora/x86_64/coreos/stable
+    deploy_type = ""
+    imgref = ""
+    data = {}
+    with open(origin) as f:
+        for line in f:
+            separated_line = line.split("=")
+            if separated_line[0] == "container-image-reference":
+                deploy_type = "container"
+                imgref = separated_line[1].rstrip()
+                break
+            elif separated_line[0] == "refspec":
+                deploy_type = "ostree_commit"
+                imgref = separated_line[1].rstrip()
+                break
+    if deploy_type == "container":
+        data = aleph_container(tree, imgref)
+    elif deploy_type == "ostree_commit":
+        data = aleph_commit(tree, imgref)
+    else:
+        raise ValueError("Could not find 'container-image-reference' or 'refspec' in origin file")
+    
+    # write the data out to the file
+    filename = ".aleph-version.json"
+    with open(os.path.join(tree, filename), "w") as f:
+        json.dump(data, f, indent=4, sort_keys=True)
+        f.write("\n")
 
-    if 'docker://' in imgref:
-        aleph_container(tree, imgref, coreos)
-    else:
-        aleph_commit(tree, imgref, coreos)
-    
+    # create a symlink for backwards compatibility with CoreOS
+    if coreos_compat:
+      os.symlink(filename, os.path.join(tree, ".coreos-aleph-version.json"))
+
 
 if __name__ == '__main__':
     stage_args = osbuild.api.arguments()
     r = main(stage_args["tree"],
-             stage_args["options"],
-             stage_args["inputs"])
+             stage_args["options"])
     sys.exit(r)

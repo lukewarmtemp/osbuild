@@ -80,6 +80,7 @@ SCHEMA_2 = """
 }
 """
 
+
 def make_fs_identifier(desc):
     for key in ["uuid", "label"]:
         val = desc.get(key)
@@ -91,8 +92,7 @@ def make_fs_identifier(desc):
 def ostree_container_deploy(tree, inputs, osname, target_imgref, kopts):
     images = containers.parse_containers_input(inputs)
     for image in images.values():
-        print(image)
-        with containers.container_source(image) as (__, image_source):
+        with containers.container_source(image) as (_, image_source):
             extra_args = []
             imgref = f"ostree-unverified-image:{image_source}"
 
@@ -105,6 +105,7 @@ def ostree_container_deploy(tree, inputs, osname, target_imgref, kopts):
             extra_args.append(f'--target-imgref={target_imgref}')
 
             kargs = [f'--karg={v}' for v in kopts]
+
             ostree.cli("container", "image", "deploy",
                        *extra_args, sysroot=tree, *kargs)
 

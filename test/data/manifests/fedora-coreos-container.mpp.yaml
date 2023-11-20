@@ -83,7 +83,7 @@ pipelines:
                   tag: stable
       - type: org.osbuild.ostree.coreos.aleph
         options:
-          coreos: true
+          coreos_compat: true
       # - type: org.osbuild.ostree.deploy
       #   options:
       #     osname: fedora-coreos
@@ -106,7 +106,7 @@ pipelines:
       #           ref: fedora/x86_64/coreos/stable
       # - type: org.osbuild.ostree.coreos.aleph
       #   options:
-      #     coreos: true
+      #     coreos_compat: true
       - type: org.osbuild.ostree.selinux
         options:
           deployment:

@@ -8,6 +8,7 @@ import tempfile
 import typing
 # pylint doesn't understand the string-annotation below
 from typing import Any, List  # pylint: disable=unused-import
+import glob
 
 from osbuild.util.rhsm import Subscriptions
 
@@ -213,15 +214,24 @@ def parse_input_commits(commits):
 def deployment_path(root: PathLike, osname: str, ref: str, serial: int):
     """Return the path to a deployment given the parameters"""
 
-    base = os.path.join(root, "ostree")
+    if osname == "" and ref == "" and serial == None:
+        filenames =  glob.glob(root + '/ostree/deploy/*/deploy/*.0', recursive=True)
+        if len(filenames) < 1:
+            raise ValueError("Cound not find deployment")
+        elif len(filenames) > 1:
+            raise ValueError("More than one deployment found")
+        return filenames[0]
+    
+    else:
+        base = os.path.join(root, "ostree")
 
-    repo = os.path.join(base, "repo")
-    stateroot = os.path.join(base, "deploy", osname)
+        repo = os.path.join(base, "repo")
+        stateroot = os.path.join(base, "deploy", osname)
 
-    commit = rev_parse(repo, ref)
-    sysroot = f"{stateroot}/deploy/{commit}.{serial}"
+        commit = rev_parse(repo, ref)
+        sysroot = f"{stateroot}/deploy/{commit}.{serial}"
 
-    return sysroot
+        return sysroot
 
 
 class PasswdLike:
