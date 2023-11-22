@@ -51,10 +51,10 @@ def aleph_commit(tree, imgref):
     extra_args = []
     extra_args.append("--print-metadata-key=version")
 
-    aleph_version = ostree.cli("show", f"--repo={tree}/ostree/repo", "ostree/1/1/0", *extra_args).stdout.rstrip().strip('\'')
+    aleph_version = ostree.cli("show", f"--repo={tree}/ostree/repo", imgref, *extra_args).stdout.rstrip().strip('\'')
     aleph_ref = imgref
     # get the commit by parsing the revision of the deployment
-    aleph_ostree_commit = ostree.rev_parse(tree + "/ostree/repo", "ostree/1/1/0")
+    aleph_ostree_commit = ostree.rev_parse(tree + "/ostree/repo", imgref)
 
     aleph_version_data = {
         "osbuild-version": osbuild.__version__,
@@ -73,6 +73,10 @@ def aleph_container(tree, imgref):
         img_name = ':'.join(imgref_list[2:])
     elif imgref_list[0] in ["ostree-image-signed", "ostree-unverified-registry"]:
         img_name = ':'.join(imgref_list[1:])
+    else:
+        raise ValueError("Could not find 'ostree-remote-registry', \
+                         'ostree-remote-image', 'ostree-image-signed', or \
+                         'ostree-unverified-registry' in imgref")
 
     img_name = img_name.lstrip('docker://')
 
@@ -95,7 +99,6 @@ def aleph_container(tree, imgref):
     aleph_version_data = {
         "osbuild-version": osbuild.__version__,
         "ref": aleph_ref,
-        "build": aleph_version,
         "version": aleph_version,
         "container-image": {
             "image-name": img_name,
@@ -113,6 +116,18 @@ def aleph_container(tree, imgref):
     return aleph_version_data
 
 
+def construct_aleph_json(tree, origin):
+    deploy_type, imgref = ostree.parse_origin(origin)
+    data = {}
+    # null deploy_type and imgref error is caught in the parse_origin() function
+    if deploy_type == "container":
+        data = aleph_container(tree, imgref)
+    elif deploy_type == "ostree_commit":
+        data = aleph_commit(tree, imgref)
+    
+    return data
+
+
 def main(tree, options):
     coreos_compat = options.get("coreos_compat", False)
     dep = options.get("deployment", None)
@@ -120,6 +135,8 @@ def main(tree, options):
     ref = ""
     serial = None
     origin = ""
+    aleph_filename = ".aleph-version.json"
+    coreos_aleph_filename = ".coreos-aleph-version.json"
 
     # if deployment is specified, use it to find the origin file.
     # otherwise, autodetect the only deployment found in the tree.
@@ -129,40 +146,16 @@ def main(tree, options):
         serial = dep.get("serial", 0)
     
     origin = ostree.deployment_path(tree, osname, ref, serial) + ".origin"
-    # use the origin file to find the target_imgref and dictate whether
-    # the system was deployed from an container image or ostree commit.
-    # example container case: container-image-reference=ostree-remote-image:fedora:docker://quay.io/fedora/fedora-coreos:stable
-    # example ostree commit case: refspec=fedora:fedora/x86_64/coreos/stable
-    deploy_type = ""
-    imgref = ""
-    data = {}
-    with open(origin) as f:
-        for line in f:
-            separated_line = line.split("=")
-            if separated_line[0] == "container-image-reference":
-                deploy_type = "container"
-                imgref = separated_line[1].rstrip()
-                break
-            elif separated_line[0] == "refspec":
-                deploy_type = "ostree_commit"
-                imgref = separated_line[1].rstrip()
-                break
-    if deploy_type == "container":
-        data = aleph_container(tree, imgref)
-    elif deploy_type == "ostree_commit":
-        data = aleph_commit(tree, imgref)
-    else:
-        raise ValueError("Could not find 'container-image-reference' or 'refspec' in origin file")
+    data = construct_aleph_json(tree, origin)
     
     # write the data out to the file
-    filename = ".aleph-version.json"
-    with open(os.path.join(tree, filename), "w") as f:
+    with open(os.path.join(tree, aleph_filename), "w") as f:
         json.dump(data, f, indent=4, sort_keys=True)
         f.write("\n")
 
     # create a symlink for backwards compatibility with CoreOS
     if coreos_compat:
-      os.symlink(filename, os.path.join(tree, ".coreos-aleph-version.json"))
+      os.symlink(aleph_filename, os.path.join(tree, coreos_aleph_filename))
 
 
 if __name__ == '__main__':
