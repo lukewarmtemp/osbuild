@@ -13,6 +13,8 @@ from osbuild.util import ostree
 import json
 
 CAPABILITIES = ["CAP_MAC_ADMIN"]
+ALEPH_FILENAME = ".aleph-version.json"
+COREOS_ALEPH_FILENAME = ".coreos-aleph-version.json"
 
 
 SCHEMA_2 = """
@@ -74,9 +76,8 @@ def aleph_container(tree, imgref):
     elif imgref_list[0] in ["ostree-image-signed", "ostree-unverified-registry"]:
         img_name = ':'.join(imgref_list[1:])
     else:
-        raise ValueError("Could not find 'ostree-remote-registry', \
-                         'ostree-remote-image', 'ostree-image-signed', or \
-                         'ostree-unverified-registry' in imgref")
+        raise ValueError(f"Image ref {imgref} has unsupported type (supported: 'ostree-remote-registry', \
+                         'ostree-remote-image', 'ostree-image-signed', or 'ostree-unverified-registry')")
 
     img_name = img_name.lstrip('docker://')
 
@@ -124,7 +125,9 @@ def construct_aleph_json(tree, origin):
         data = aleph_container(tree, imgref)
     elif deploy_type == "ostree_commit":
         data = aleph_commit(tree, imgref)
-    
+    else:
+        raise ValueError("Unknown deployment type")
+
     return data
 
 
@@ -135,8 +138,6 @@ def main(tree, options):
     ref = ""
     serial = None
     origin = ""
-    aleph_filename = ".aleph-version.json"
-    coreos_aleph_filename = ".coreos-aleph-version.json"
 
     # if deployment is specified, use it to find the origin file.
     # otherwise, autodetect the only deployment found in the tree.
@@ -149,13 +150,13 @@ def main(tree, options):
     data = construct_aleph_json(tree, origin)
     
     # write the data out to the file
-    with open(os.path.join(tree, aleph_filename), "w") as f:
+    with open(os.path.join(tree, ALEPH_FILENAME), "w") as f:
         json.dump(data, f, indent=4, sort_keys=True)
         f.write("\n")
 
     # create a symlink for backwards compatibility with CoreOS
     if coreos_compat:
-      os.symlink(aleph_filename, os.path.join(tree, coreos_aleph_filename))
+      os.symlink(ALEPH_FILENAME, os.path.join(tree, COREOS_ALEPH_FILENAME))
 
 
 if __name__ == '__main__':
