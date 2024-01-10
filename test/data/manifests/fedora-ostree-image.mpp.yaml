@@ -175,6 +175,9 @@ pipelines:
         options:
           uuid: 156f0420-627b-4151-ae6f-fda298097515
           label: boot
+          metadata_csum_seed: true
+          orphan_file: true
+          verity: true
       - type: org.osbuild.luks2.format
         devices:
           device:
