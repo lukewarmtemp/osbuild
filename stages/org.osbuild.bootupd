@@ -26,7 +26,32 @@ SCHEMA_2 = r"""
 },
 "options": {
 "additionalProperties": true,
+"not": { "required": ["deployment", "default-deployment"]},
 "properties": {
+  "deployment": {
+    "additionalProperties": false,
+    "required": ["osname", "ref"],
+    "properties": {
+      "osname": {
+        "description": "Name of the stateroot to be used in the deployment",
+        "type": "string"
+      },
+      "ref": {
+        "description": "OStree ref to create and use for deployment",
+        "type": "string"
+      },
+      "serial": {
+        "description": "The deployment serial (usually '0')",
+        "type": "number",
+        "default": 0
+      }
+    }
+  },
+  "default-deployment": {
+    "description": "Use the default ostree deployment",
+    "type": "boolean",
+    "default": false
+  },
   "static-configs": {
     "description": "Install the grub configs defined for Fedora CoreOS",
     "type": "boolean"
@@ -51,6 +76,13 @@ def main(args, options):
     bios = options.get("bios", {})
     disk = bios.get("disk", "")
 
+    default_deployment = options.get("default-deployment", False)
+    if not default_deployment:    
+        dep = options["deployment"]
+        osname = dep["osname"]
+        ref = dep["ref"]
+        serial = dep.get("serial", 0)
+
     # Get the path where the filesystems are mounted
     mounts = args["paths"]["mounts"]
 
@@ -59,7 +91,10 @@ def main(args, options):
     # we'll call ostree.deployment_path() helper to find it for us.
     deployment = mounts
     if os.path.isdir(os.path.join(mounts, "ostree")):
-        deployment = ostree.deployment_path(mounts)
+        if default_deployment:
+            deployment = ostree.deployment_path(mounts)
+        elif not default_deployment:
+            deployment = ostree.deployment_path(mounts, osname, ref, serial)
 
     bootupd_args = []
     if disk:

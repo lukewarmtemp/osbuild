@@ -17,7 +17,11 @@ CAPABILITIES = ["CAP_MAC_ADMIN"]
 
 SCHEMA = """
 "additionalProperties": false,
-"required": ["deployment"],
+"oneOf": [{
+  "required": ["deployment"]
+}, {
+  "required": ["default-deployment"]
+}],
 "properties": {
   "deployment": {
     "additionalProperties": false,
@@ -37,21 +41,32 @@ SCHEMA = """
         "default": 0
       }
     }
+  },
+  "default-deployment": {
+    "description": "Use the default ostree deployment",
+    "type": "boolean",
+    "default": false
   }
 }
 """
 
 
 def main(tree, options):
-    dep = options["deployment"]
-    osname = dep["osname"]
-    ref = dep["ref"]
-    serial = dep.get("serial", 0)
+    default_deployment = options.get("default-deployment", False)
+    if not default_deployment:
+      dep = options["deployment"]
+      osname = dep["osname"]
+      ref = dep["ref"]
+      serial = dep.get("serial", 0)
 
-    # this created a state root at `osname`
-    stateroot = f"{tree}/ostree/deploy/{osname}"
-
-    root = ostree.deployment_path(tree, osname, ref, serial)
+    if default_deployment:
+        # this automatically finds the state root
+        stateroot = ostree.stateroot_path(tree)
+        root = ostree.deployment_path(tree)
+    elif not default_deployment:
+        # this created a state root at `osname`
+        stateroot = f"{tree}/ostree/deploy/{osname}"
+        root = ostree.deployment_path(tree, osname, ref, serial)
 
     # deploying a tree creates new files that need to be properly
     # labeled for SELinux. In theory, ostree will take care of

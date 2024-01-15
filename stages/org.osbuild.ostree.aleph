@@ -19,6 +19,11 @@ COREOS_ALEPH_FILENAME = ".coreos-aleph-version.json"
 SCHEMA_2 = """
 "options": {
   "additionalProperties": false,
+  "oneOf": [{
+    "required": ["deployment"]
+  }, {
+    "required": ["default-deployment"]
+  }],
   "properties": {
     "coreos_compat": {
       "description": "boolean to allow for CoreOS aleph version backwards compatibility",
@@ -42,6 +47,11 @@ SCHEMA_2 = """
           "default": 0
         }
       }
+    },
+    "default-deployment": {
+      "description": "Use the default ostree deployment",
+      "type": "boolean",
+      "default": false
     }
   }
 }
@@ -132,12 +142,18 @@ def construct_aleph_json(tree, origin):
 
 def main(tree, options):
     coreos_compat = options.get("coreos_compat", False)
-    dep = options["deployment"]
-    osname = dep["osname"]
-    ref = dep["ref"]
-    serial = dep.get("serial", 0)
 
-    origin = ostree.deployment_path(tree, osname, ref, serial) + ".origin"
+    default_deployment = options.get("default-deployment", False)
+    if not default_deployment:
+      dep = options["deployment"]
+      osname = dep["osname"]
+      ref = dep["ref"]
+      serial = dep.get("serial", 0)
+
+    if default_deployment:
+        origin = ostree.deployment_path(tree) + ".origin"
+    elif not default_deployment:
+        origin = ostree.deployment_path(tree, osname, ref, serial) + ".origin"
     data = construct_aleph_json(tree, origin)
 
     # write the data out to the file

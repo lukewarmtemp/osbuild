@@ -24,7 +24,11 @@ SCHEMA = """
   "ostree": {
     "type": "object",
     "additionalProperties": false,
-    "required": ["deployment"],
+    "oneOf": [{
+      "required": ["deployment"]
+    }, {
+      "required": ["default-deployment"]
+    }],
     "properties": {
       "deployment": {
         "type": "object",
@@ -45,6 +49,11 @@ SCHEMA = """
             "default": 0
           }
         }
+      },
+      "default-deployment": {
+        "description": "Use the default ostree deployment",
+        "type": "boolean",
+        "default": false
       }
     }
   },
@@ -113,6 +122,7 @@ SCHEMA = """
 def main(tree, options):
     filesystems = options["filesystems"]
     ostree_options = options.get("ostree")
+    default_deployment = options.get("default-deployment", False)
 
     path = f"{tree}/etc/fstab"
 
@@ -122,7 +132,10 @@ def main(tree, options):
         ref = deployment["ref"]
         serial = deployment.get("serial", 0)
 
-        root = ostree.deployment_path(tree, osname, ref, serial)
+        if default_deployment:
+            root = ostree.deployment_path(tree)
+        elif not default_deployment:
+            root = ostree.deployment_path(tree, osname, ref, serial)
 
         print(f"ostree support active: {root}")
 

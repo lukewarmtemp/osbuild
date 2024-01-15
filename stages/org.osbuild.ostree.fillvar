@@ -14,7 +14,11 @@ from osbuild.util.mnt import MountGuard
 
 SCHEMA = """
 "additionalProperties": false,
-"required": ["deployment"],
+"oneOf": [{
+  "required": ["deployment"]
+}, {
+  "required": ["default-deployment"]
+}],
 "properties": {
   "deployment": {
     "additionalProperties": false,
@@ -34,6 +38,11 @@ SCHEMA = """
         "default": 0
       }
     }
+  },
+  "default-deployment": {
+    "description": "Use the default ostree deployment",
+    "type": "boolean",
+    "default": false
   }
 }
 """
@@ -70,13 +79,20 @@ def populate_var(sysroot):
 
 
 def main(tree, options):
-    dep = options["deployment"]
-    osname = dep["osname"]
-    ref = dep["ref"]
-    serial = dep.get("serial", 0)
+    default_deployment = options.get("default-deployment", False)
+    if not default_deployment:
+      dep = options["deployment"]
+      osname = dep["osname"]
+      ref = dep["ref"]
+      serial = dep.get("serial", 0)
 
-    deployment = ostree.deployment_path(tree, osname, ref, serial)
-    var = os.path.join(tree, "ostree", "deploy", osname, "var")
+    if default_deployment:
+        deployment = ostree.deployment_path(tree)
+        stateroot = ostree.stateroot_path(tree)
+        var = os.path.join(stateroot, "var")
+    elif not default_deployment:
+        deployment = ostree.deployment_path(tree, osname, ref, serial)
+        var = os.path.join(tree, "ostree", "deploy", osname, "var")
 
     with MountGuard() as mgr:
         mgr.mount(var, f"{deployment}/var")

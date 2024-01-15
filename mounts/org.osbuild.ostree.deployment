@@ -30,7 +30,11 @@ SCHEMA_2 = """
   "type": { "type": "string" },
   "options": {
     "type": "object",
-    "required": ["deployment"],
+    "oneOf": [{
+      "required": ["deployment"]
+    }, {
+      "required": ["default-deployment"]
+    }],
     "properties": {
       "deployment": {
         "type": "object",
@@ -51,6 +55,11 @@ SCHEMA_2 = """
             "default": 0
           }
         }
+      },
+      "default-deployment": {
+        "description": "Use the default ostree deployment",
+        "type": "boolean",
+        "default": false
       }
     }
   }
@@ -79,10 +88,12 @@ class OSTreeDeploymentMount(mounts.MountService):
         tree = args["tree"]
         options = args["options"]
 
-        deployment = options["deployment"]
-        osname = deployment["osname"]
-        ref = deployment["ref"]
-        serial = deployment.get("serial", 0)
+        default_deployment = options.get("default-deployment", False)
+        if not default_deployment:
+          deployment = options["deployment"]
+          osname = deployment["osname"]
+          ref = deployment["ref"]
+          serial = deployment.get("serial", 0)
 
         # create a private mountpoint for the tree, which is needed
         # in order to be able to move the `root` mountpoint, which
@@ -91,11 +102,18 @@ class OSTreeDeploymentMount(mounts.MountService):
         #                                              - `mount(8)`
         self.tree = self.bind_mount(tree, tree)
 
-        root = ostree.deployment_path(tree, osname, ref, serial)
+        if default_deployment:
+            root = ostree.deployment_path(tree)
+        elif not default_deployment:
+            root = ostree.deployment_path(tree, osname, ref, serial)
 
         print(f"Deployment root at '{os.path.relpath(root, tree)}'")
 
-        var = os.path.join(tree, "ostree", "deploy", osname, "var")
+        if default_deployment:
+            stateroot = ostree.stateroot_path(tree)
+            var = os.path.join(stateroot, "var")
+        elif not default_deployment:
+            var = os.path.join(tree, "ostree", "deploy", osname, "var")
         boot = os.path.join(tree, "boot")
 
         self.mountpoint = root
