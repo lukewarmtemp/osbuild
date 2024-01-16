@@ -215,6 +215,17 @@ def parse_input_commits(commits):
     return commits["path"], data["refs"]
 
 
+def stateroot_path(root: PathLike):
+    """Return the path to a deployment given the tree path"""
+
+    filenames = glob.glob(os.path.join(root, 'ostree/deploy/*'), recursive=True)
+    if len(filenames) < 1:
+        raise ValueError("Could not find stateroot")
+    if len(filenames) > 1:
+        raise ValueError("More than one stateroot found")
+    return filenames[0]
+
+
 def deployment_path(root: PathLike, osname: str = "", ref: str = "", serial: int = None):
     """Return the path to a deployment given the parameters"""
 
