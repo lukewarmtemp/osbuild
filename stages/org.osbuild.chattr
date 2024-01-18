@@ -14,26 +14,23 @@ import osbuild.api
 SCHEMA_2 = r"""
 "options": {
   "additionalProperties": false,
-  "required": ["path", "immutable"],
   "properties": {
-    "immutable": {
-      "type": "boolean",
-      "description": "Make the file/directory immutable",
-      "default": true
-    },
-    "path": {
-      "oneOf": [
-        {
-          "type": "string",
-          "description": "The destination, if a mount",
-          "pattern": "^mount:\/\/[^\/]+\/"
-        },
-        {
-          "type": "string",
-          "description": "The destination, if a tree",
-          "pattern": "^tree:\/\/\/"
+    "items": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^mount:\/\/[^\/]+\/|^tree:\/\/\/": {
+          "type": "object",
+          "required": ["immutable"],
+          "properties": {
+            "immutable": {
+              "type": "boolean",
+              "description": "Make the file/directory immutable",
+              "default": true
+            }
+          }
         }
-      ]
+      }
     }
   }
 },
@@ -83,14 +80,11 @@ def parse_location(location, args):
 
 
 def main(args, options):
-    path = options["path"]
-    immutable = options["immutable"]
-
-    dst = parse_location(path, args)
-    if immutable:
-        subprocess.run(["chattr", "+i", dst], check=True)
-    elif not immutable:
-        subprocess.run(["chattr", "-i", dst], check=True)
+    for path, cmdargs in options["items"].items():
+        immutable = cmdargs["immutable"]
+        dst = parse_location(path, args)
+        op = '+' if immutable else '-'
+        subprocess.run(["chattr", f"{op}i", dst], check=True)
 
     return 0
 
