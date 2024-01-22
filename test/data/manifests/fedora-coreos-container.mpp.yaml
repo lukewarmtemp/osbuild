@@ -116,10 +116,12 @@ pipelines:
       - type: org.osbuild.ostree.aleph
         options:
           coreos_compat: true
-          default-deployment: true
+          deployment:
+            default-deployment: true
       - type: org.osbuild.ostree.selinux
         options:
-          default-deployment: true
+          deployment:
+            default-deployment: true
   - name: raw-image
     build: name:build
     stages:
@@ -219,7 +221,8 @@ pipelines:
           bios:
             disk: disk
           static-configs: true
-          default-deployment: true
+          deployment:
+            default-deployment: true
         devices:
           disk:
             type: org.osbuild.loopback

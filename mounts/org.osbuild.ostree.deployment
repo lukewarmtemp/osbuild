@@ -30,16 +30,31 @@ SCHEMA_2 = """
   "type": { "type": "string" },
   "options": {
     "type": "object",
-    "oneOf": [{
-      "required": ["deployment"]
-    }, {
-      "required": ["default-deployment"]
-    }],
+    "required": ["deployment"],
     "properties": {
       "deployment": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["osname", "ref"],
+        "oneOf": [
+          {
+            "properties": {
+              "default-deployment": {"enum": [false]}
+            },
+            "required": ["osname", "ref"]
+          },
+          {
+            "properties": {
+              "default-deployment": {"enum": [true]}
+            },
+            "not": { 
+              "anyOf": [
+                {"required": ["osname"]},
+                {"required": ["ref"]},
+                {"required": ["serial"]}
+              ]
+            }
+          }
+        ],
         "properties": {
           "osname": {
             "description": "Name of the stateroot to be used in the deployment",
@@ -53,13 +68,13 @@ SCHEMA_2 = """
             "description": "The deployment serial (usually '0')",
             "type": "number",
             "default": 0
+          },
+          "default-deployment": {
+            "description": "Use the default ostree deployment",
+            "type": "boolean",
+            "default": false
           }
         }
-      },
-      "default-deployment": {
-        "description": "Use the default ostree deployment",
-        "type": "boolean",
-        "default": false
       }
     }
   }
@@ -87,13 +102,9 @@ class OSTreeDeploymentMount(mounts.MountService):
 
         tree = args["tree"]
         options = args["options"]
+        deployment = options["deployment"]
 
-        default_deployment = options.get("default-deployment", False)
-        if not default_deployment:
-          deployment = options["deployment"]
-          osname = deployment["osname"]
-          ref = deployment["ref"]
-          serial = deployment.get("serial", 0)
+        osname, ref, serial, default_deployment = ostree.parse_deployment_option(deployment)
 
         # create a private mountpoint for the tree, which is needed
         # in order to be able to move the `root` mountpoint, which
@@ -102,18 +113,11 @@ class OSTreeDeploymentMount(mounts.MountService):
         #                                              - `mount(8)`
         self.tree = self.bind_mount(tree, tree)
 
-        if default_deployment:
-            root = ostree.deployment_path(tree)
-        elif not default_deployment:
-            root = ostree.deployment_path(tree, osname, ref, serial)
+        root = ostree.deployment_path(tree, osname, ref, serial)
 
         print(f"Deployment root at '{os.path.relpath(root, tree)}'")
 
-        if default_deployment:
-            stateroot = ostree.stateroot_path(tree)
-            var = os.path.join(stateroot, "var")
-        elif not default_deployment:
-            var = os.path.join(tree, "ostree", "deploy", osname, "var")
+        var = ostree.var_path(tree, osname, default_deployment)
         boot = os.path.join(tree, "boot")
 
         self.mountpoint = root

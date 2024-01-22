@@ -215,15 +215,20 @@ def parse_input_commits(commits):
     return commits["path"], data["refs"]
 
 
-def stateroot_path(root: PathLike):
-    """Return the path to a deployment given the tree path"""
+def parse_deployment_option(deployment):
+    """Parse the deployment option and return the osname, ref, and serial"""
 
-    filenames = glob.glob(os.path.join(root, 'ostree/deploy/*'), recursive=True)
-    if len(filenames) < 1:
-        raise ValueError("Could not find stateroot")
-    if len(filenames) > 1:
-        raise ValueError("More than one stateroot found")
-    return filenames[0]
+    osname = ""
+    ref = ""
+    serial = None
+
+    default_deployment = deployment.get("default-deployment", False)
+    if not default_deployment:
+        osname = deployment["osname"]
+        ref = deployment["ref"]
+        serial = deployment.get("serial", 0)
+
+    return osname, ref, serial, default_deployment
 
 
 def deployment_path(root: PathLike, osname: str = "", ref: str = "", serial: int = None):
@@ -246,6 +251,30 @@ def deployment_path(root: PathLike, osname: str = "", ref: str = "", serial: int
     sysroot = f"{stateroot}/deploy/{commit}.{serial}"
 
     return sysroot
+
+
+def stateroot_path(root: PathLike, osname, default_deployment):
+    """Return the path to a deployment given the tree path"""
+
+    if default_deployment:
+        filenames = glob.glob(os.path.join(root, 'ostree/deploy/*'), recursive=True)
+        if len(filenames) < 1:
+            raise ValueError("Could not find stateroot")
+        if len(filenames) > 1:
+            raise ValueError("More than one stateroot found")
+        return filenames[0]
+
+    return f"{root}/ostree/deploy/{osname}"
+
+
+def var_path(root: PathLike, osname, default_deployment):
+    """Return the path to /var"""
+    
+    if default_deployment:
+        stateroot = stateroot_path(root, osname, default_deployment)
+        return os.path.join(stateroot, "var")
+
+    return os.path.join(root, "ostree", "deploy", osname, "var")
 
 
 def parse_origin(origin: PathLike):
