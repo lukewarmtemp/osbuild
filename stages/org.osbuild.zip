@@ -1,0 +1,90 @@
+#!/usr/bin/python3
+"""
+Assembles the tree into a zip archive named `filename`
+"""
+
+import os
+import subprocess
+import sys
+
+import osbuild.api
+
+CAPABILITIES = ["CAP_MAC_ADMIN"]
+
+
+SCHEMA_2 = """
+"options": {
+  "additionalProperties": false,
+  "required": ["filename"],
+  "properties": {
+    "filename": {
+      "description": "Filename for zip archive",
+      "type": "string"
+    },
+    "paths": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "If specified, the archive will only contain the specified paths, in the specified order"
+      }
+    },
+    "level": {
+      "description": "Compression level",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9,
+      "default": 6
+    }
+  }
+},
+"inputs": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["tree"],
+  "properties": {
+    "tree": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}
+"""
+
+
+def main(inputs, output_dir, options):
+    tree = inputs["tree"]["path"]
+    filename = options["filename"].lstrip("/")
+    # The zip command itself uses 6 as default if no level is specified.
+    # We choose to specifiy 6 as default here to make it explicit.
+    level = options.get("level", 6)
+    paths = options.get("paths", [])
+
+    # Set up the zip command.
+    zip_cmd = [
+        "zip",
+        "-r",
+        f"-{level}",
+        os.path.join(output_dir, filename),
+        "."
+    ]
+
+    if paths:
+        zip_cmd += ["-i"]
+        zip_cmd += paths
+
+    # Unlike the tar command, zip does not allow an option to change working dir.
+    os.chdir(tree)
+
+    subprocess.run(
+        zip_cmd,
+        stdout=subprocess.DEVNULL,
+        check=True
+    )
+
+    return 0
+
+
+if __name__ == '__main__':
+    args = osbuild.api.arguments()
+    r = main(args["inputs"], args["tree"], args["options"])
+    sys.exit(r)
