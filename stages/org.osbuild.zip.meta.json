@@ -19,11 +19,7 @@
           "type": "array",
           "items": {
             "type": "string",
-            "description": [
-              "If specified, the archive will only contain the specified paths",
-              "in the specified order. Expects glob style expressions that is",
-              "passed directly to the `zip` command."
-            ]
+            "description": "If specified, the archive will only contain the specified paths in the specified order. Expects glob style expressions that is passed directly to the `zip` command."
           }
         },
         "level": {
