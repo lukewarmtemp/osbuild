@@ -54,4 +54,4 @@ pipelines:
               - name:input-tree
         options:
           filename: zipfile.zip
-          paths: ['testfile']
+          include: ['testfile']
