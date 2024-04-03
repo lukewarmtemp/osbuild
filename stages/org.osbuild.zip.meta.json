@@ -12,13 +12,18 @@
       "properties": {
         "filename": {
           "description": "Filename for zip archive",
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
-        "paths": {
+        "include": {
           "type": "array",
           "items": {
             "type": "string",
-            "description": "If specified, the archive will only contain the specified paths, in the specified order"
+            "description": [
+              "If specified, the archive will only contain the specified paths",
+              "in the specified order. Expects glob style expressions that is",
+              "passed directly to the `zip` command."
+            ]
           }
         },
         "level": {
